@@ -55,7 +55,7 @@ impl BST {
             } => match key.cmp(k) {
                 Ordering::Less => left.insert(key, value),
                 Ordering::Greater => right.insert(key, value),
-                _ => return,
+                _ => {}
             },
             BST::NIL => {
                 // Insert a leaf node
@@ -93,11 +93,7 @@ impl BST {
         }
     }
     pub fn contains(&self, key: i32) -> bool {
-        if let Some(_) = self.get(key) {
-            true
-        } else {
-            false
-        }
+        self.get(key).is_some()
     }
     pub fn min(&self) -> Option<i32> {
         match self {
