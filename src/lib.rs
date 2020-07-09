@@ -1,5 +1,5 @@
-pub mod rbtree;
 pub mod bst;
+pub mod rbtree;
 
 #[cfg(test)]
 mod tests {

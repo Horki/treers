@@ -164,7 +164,7 @@ impl RedBlackTree {
                 left: _,
                 right: _,
             } => *color = false,
-            _ => return
+            _ => return,
         }
     }
 
@@ -178,7 +178,7 @@ impl RedBlackTree {
                 left: _,
                 right: _,
             } => *color,
-            _ => false
+            _ => false,
         }
     }
 
@@ -192,7 +192,7 @@ impl RedBlackTree {
                 ref left,
                 right: _,
             } => left.is_red(),
-            _ => false
+            _ => false,
         }
     }
 

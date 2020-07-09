@@ -52,13 +52,11 @@ impl BST {
                 ref mut size,
                 ref mut left,
                 ref mut right,
-            } => {
-                match key.cmp(k) {
-                    Ordering::Less => left.insert(key, value),
-                    Ordering::Greater => right.insert(key, value),
-                    _ => return,
-                }
-            }
+            } => match key.cmp(k) {
+                Ordering::Less => left.insert(key, value),
+                Ordering::Greater => right.insert(key, value),
+                _ => return,
+            },
             BST::NIL => {
                 // Insert a leaf node
                 *self = BST::Node {
@@ -75,7 +73,6 @@ impl BST {
     pub fn put(&mut self, key: i32, value: i32) {
         self.insert(key, value);
     }
-
 
     pub fn height(&self) -> usize {
         match self {
