@@ -1,7 +1,10 @@
+pub mod rbtree;
+pub mod bst;
+
 #[cfg(test)]
 mod tests {
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn its_42() {
+        assert_eq!(20 + 22, 42);
     }
 }
