@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 enum RedBlackTree {
     Node {
         k: i32,
@@ -60,21 +60,29 @@ impl RedBlackTree {
                 match key.cmp(k) {
                     Ordering::Less => left.insert(key, value),
                     Ordering::Greater => right.insert(key, value),
-                    _ => return,
+                    _ => {}
                 }
                 // Lean left
                 println!("inserting numero {}", k);
                 if right.is_red() && !left.is_red() {
                     println!("rotate left {}", k);
-                    // left.set_vals(*k, *v, *color);
+
+                    // left.set_vals(*k, *v, *color, *size, RedBlackTree::NIL, RedBlackTree::NIL);
+                    // if right.left.contains(key) {
+                    //     *right = Box::new(RedBlackTree::NIL);
+                    // }
                     // *k = key;
                     // *v = value;
                     // *color = true;
                     // *size = left.size() + right.size() + 1;
                 }
                 // Balance 4-node
-                if left.is_red() && left.is_left_red() {
-                    println!("rotate right {}", k);
+                if left.is_red() {
+                    if let Some(l) = left.get_left() {
+                        if l.is_red() {
+                            println!("rotate right {}", k);
+                        }
+                    }
                     // std::mem::swap(left, right);
                     // right.set_vals(*k, *v, *color);
                     // *k = key;
@@ -117,7 +125,7 @@ impl RedBlackTree {
                 *left = Box::new(RedBlackTree::NIL);
                 *right = Box::new(RedBlackTree::NIL);
             }
-            _ => return,
+            _ => {}
         }
     }
 
@@ -127,19 +135,30 @@ impl RedBlackTree {
         self.set_black();
     }
 
-    fn set_vals(&mut self, key: i32, val: i32, c: bool) {
+    fn set_vals(
+        &mut self,
+        key: i32,
+        val: i32,
+        c: bool,
+        s: usize,
+        l: RedBlackTree,
+        r: RedBlackTree,
+    ) {
         match self {
             RedBlackTree::Node {
                 ref mut k,
                 ref mut v,
                 ref mut color,
-                size: _,
-                left: _,
-                right: _,
+                ref mut size,
+                ref mut left,
+                ref mut right,
             } => {
                 *k = key;
                 *v = val;
                 *color = c;
+                *size = s;
+                *left = Box::new(r);
+                *right = Box::new(l);
             }
             RedBlackTree::NIL => {
                 *self = RedBlackTree::Node {
@@ -147,8 +166,8 @@ impl RedBlackTree {
                     v: val,
                     color: c,
                     size: 1,
-                    left: Box::new(RedBlackTree::NIL),
-                    right: Box::new(RedBlackTree::NIL),
+                    left: Box::new(l),
+                    right: Box::new(r),
                 }
             }
         }
@@ -164,7 +183,7 @@ impl RedBlackTree {
                 left: _,
                 right: _,
             } => *color = false,
-            _ => return,
+            _ => {}
         }
     }
 
@@ -182,7 +201,7 @@ impl RedBlackTree {
         }
     }
 
-    fn is_left_red(&self) -> bool {
+    fn get_left(&self) -> Option<&RedBlackTree> {
         match self {
             RedBlackTree::Node {
                 k: _,
@@ -191,8 +210,50 @@ impl RedBlackTree {
                 size: _,
                 ref left,
                 right: _,
-            } => left.is_red(),
-            _ => false,
+            } => Some(left),
+            _ => None,
+        }
+    }
+
+    fn get_left_mut(&mut self) -> Option<&mut RedBlackTree> {
+        match self {
+            RedBlackTree::Node {
+                k: _,
+                v: _,
+                color: _,
+                size: _,
+                ref mut left,
+                right: _,
+            } => Some(left),
+            _ => None,
+        }
+    }
+
+    fn get_right(&self) -> Option<&RedBlackTree> {
+        match self {
+            RedBlackTree::Node {
+                k: _,
+                v: _,
+                color: _,
+                size: _,
+                left: _,
+                ref right,
+            } => Some(right),
+            _ => None,
+        }
+    }
+
+    fn get_right_mut(&mut self) -> Option<&mut RedBlackTree> {
+        match self {
+            RedBlackTree::Node {
+                k: _,
+                v: _,
+                color: _,
+                size: _,
+                left: _,
+                ref mut right,
+            } => Some(right),
+            _ => None,
         }
     }
 
@@ -216,11 +277,7 @@ impl RedBlackTree {
         }
     }
     pub fn contains(&self, key: i32) -> bool {
-        if let Some(_) = self.get(key) {
-            true
-        } else {
-            false
-        }
+        self.get(key).is_some()
     }
     pub fn min(&self) -> Option<i32> {
         match self {
@@ -284,6 +341,8 @@ mod tests {
         tree.put(1, 2);
         println!("{:?}", tree);
         tree.put(2, 4);
+        println!("{:?}", tree);
+        tree.put(3, 4);
         println!("{:?}", tree);
     }
 }
