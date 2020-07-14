@@ -1,22 +1,23 @@
+use super::SedgewickMap;
 use std::cmp::Ordering;
 
-#[derive(Debug, Clone)]
-enum BST {
+pub enum BST<K: Ord, V> {
     Node {
-        k: i32,
-        v: i32,
+        k: K,
+        v: V,
         size: usize,
-        left: Box<BST>,
-        right: Box<BST>,
+        left: Box<BST<K, V>>,
+        right: Box<BST<K, V>>,
     },
     NIL,
 }
 
-impl BST {
-    pub fn new() -> Self {
+impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
+    fn new() -> Self {
         BST::NIL
     }
-    pub fn size(&self) -> usize {
+
+    fn size(&self) -> usize {
         match &self {
             BST::Node {
                 k: _,
@@ -28,7 +29,7 @@ impl BST {
             _ => 0_usize,
         }
     }
-    pub fn get(&self, key: i32) -> Option<i32> {
+    fn get(&self, key: &K) -> Option<&V> {
         match self {
             BST::Node {
                 ref k,
@@ -39,24 +40,28 @@ impl BST {
             } => match key.cmp(k) {
                 Ordering::Less => left.get(key),
                 Ordering::Greater => right.get(key),
-                _ => Some(*v),
+                _ => Some(v),
             },
             _ => None,
         }
     }
-    fn insert(&mut self, key: i32, value: i32) {
+
+    fn put(&mut self, key: K, value: V) {
         match self {
             BST::Node {
-                ref mut k,
-                ref mut v,
+                ref k,
+                v: _,
                 ref mut size,
                 ref mut left,
                 ref mut right,
-            } => match key.cmp(k) {
-                Ordering::Less => left.insert(key, value),
-                Ordering::Greater => right.insert(key, value),
-                _ => {}
-            },
+            } => {
+                match key.cmp(k) {
+                    Ordering::Less => left.put(key, value),
+                    Ordering::Greater => right.put(key, value),
+                    _ => {}
+                }
+                *size = 1_usize + left.size() + right.size();
+            }
             BST::NIL => {
                 // Insert a leaf node
                 *self = BST::Node {
@@ -70,11 +75,7 @@ impl BST {
         }
     }
 
-    pub fn put(&mut self, key: i32, value: i32) {
-        self.insert(key, value);
-    }
-
-    pub fn height(&self) -> usize {
+    fn height(&self) -> usize {
         match self {
             BST::Node {
                 k: _,
@@ -86,16 +87,19 @@ impl BST {
             _ => 0_usize,
         }
     }
-    pub fn is_empty(&self) -> bool {
+
+    fn is_empty(&self) -> bool {
         match self {
             BST::Node { .. } => false,
             _ => true,
         }
     }
-    pub fn contains(&self, key: i32) -> bool {
+
+    fn contains(&self, key: &K) -> bool {
         self.get(key).is_some()
     }
-    pub fn min(&self) -> Option<i32> {
+
+    fn min(&self) -> Option<&K> {
         match self {
             BST::Node {
                 ref k,
@@ -107,14 +111,14 @@ impl BST {
                 if let Some(l) = left.min() {
                     Some(l)
                 } else {
-                    Some(*k)
+                    Some(k)
                 }
             }
             _ => None,
         }
     }
 
-    pub fn max(&self) -> Option<i32> {
+    fn max(&self) -> Option<&K> {
         match self {
             BST::Node {
                 ref k,
@@ -126,7 +130,7 @@ impl BST {
                 if let Some(l) = right.max() {
                     Some(l)
                 } else {
-                    Some(*k)
+                    Some(k)
                 }
             }
             _ => None,
@@ -136,16 +140,100 @@ impl BST {
 
 #[cfg(test)]
 mod tests {
-    use crate::bst::BST;
+    use super::SedgewickMap;
+    use super::BST;
 
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn test_is_empty() {
+        let bst: BST<i32, i32> = BST::new();
+        println!("{}", std::mem::size_of_val(&bst));
+        assert_eq!(bst.is_empty(), true);
     }
 
     #[test]
-    fn is_empty() {
-        let bst = BST::new();
-        assert_eq!(bst.is_empty(), true);
+    fn test_is_not_empty() {
+        let mut bst: BST<i32, i32> = BST::new();
+        bst.put(1, 2);
+        bst.put(2, 3);
+        assert_eq!(bst.is_empty(), false);
+    }
+
+    #[test]
+    fn test_size_zero() {
+        let bst: BST<i32, i32> = BST::new();
+        assert_eq!(bst.size(), 0);
+        assert_eq!(bst.height(), 0);
+    }
+
+    #[test]
+    fn test_put() {
+        let mut bst: BST<u32, Vec<i32>> = BST::new();
+        let v = vec![1, 2, 3];
+        bst.put(1, v);
+        assert_eq!(bst.get(&1_u32), Some(&vec![1_i32, 2, 3]));
+    }
+
+    #[test]
+    fn test_get() {
+        let mut bst: BST<u32, i32> = BST::new();
+        bst.put(1_u32, -1_i32);
+        assert_eq!(bst.get(&1_u32), Some(&-1_i32));
+    }
+
+    #[test]
+    fn test_contains() {
+        let mut bst: BST<i32, i32> = BST::new();
+        bst.put(1_i32, -1_i32);
+        assert_eq!(bst.contains(&1_i32), true);
+        assert_eq!(bst.contains(&-1_i32), false);
+    }
+
+    #[test]
+    fn test_size_two() {
+        let mut bst: BST<i32, i32> = BST::new();
+        bst.put(1, 2);
+        bst.put(2, 3);
+        assert_eq!(bst.size(), 2);
+    }
+
+    // #[should_panic]
+    #[test]
+    #[ignore]
+    fn ignored_test_size_million() {
+        let mut bst: BST<u64, u64> = BST::new();
+        for i in 1..=1_000_001_u64 {
+            bst.put(i, i + 1);
+        }
+        assert_eq!(bst.size(), 1_000_000);
+    }
+
+    #[test]
+    fn test_size_and_height_one_thousand() {
+        let mut bst: BST<u64, u64> = BST::new();
+        for i in 1..=1_000_u64 {
+            bst.put(i, i + 1);
+        }
+        assert_eq!(bst.size(), 1_000);
+        assert_eq!(bst.height(), 1_000);
+    }
+
+    #[test]
+    fn test_min() {
+        let mut bst: BST<u32, u32> = BST::new();
+        for i in vec![6_u32, 4, 5, 2, 1, 3] {
+            bst.put(i, i);
+        }
+        assert_eq!(bst.min(), Some(&1_u32));
+        assert_eq!(bst.get(bst.min().unwrap()), bst.min());
+    }
+
+    #[test]
+    fn test_max() {
+        let mut bst: BST<u32, u32> = BST::new();
+        for i in vec![6_u32, 4, 5, 2, 1, 3] {
+            bst.put(i, i);
+        }
+        assert_eq!(bst.max(), Some(&6_u32));
+        assert_eq!(bst.get(bst.max().unwrap()), bst.max());
     }
 }
