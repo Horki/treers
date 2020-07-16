@@ -1,6 +1,34 @@
 use super::{SedgewickMap, Traversals};
 use std::cmp::Ordering;
 
+/// 3.2 Binary Search Tree
+///
+/// BST implementation from Robert Sedgewick book, "Algorithms" 4th edition
+///
+/// # Examples
+///
+/// ```
+/// //extern crate treers;
+///
+/// use treers::bst::BST;
+/// use treers::SedgewickMap;
+///
+/// let mut bst: BST<char, i32> = BST::new();
+/// bst.put('c', 3);
+/// bst.put('d', 4);
+/// bst.put('b', 2);
+/// bst.put('a', 1);
+///
+/// // Generate a unbalanced Binary Search Tree
+/// //    c
+/// //   / \
+/// //  b   d
+/// // /
+/// // a
+///
+/// // Gets a value 1
+/// println!("bst[a] = {}", bst.get(&'a').unwrap());
+/// ```
 pub enum BST<K: Ord, V> {
     Node {
         k: K,
@@ -17,6 +45,23 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
         BST::NIL
     }
 
+    /// Returns a size of elements in `BST`.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut bst: BST<char, u32> = BST::new();
+    /// bst.put('a', 1);
+    /// bst.put('b', 2);
+    /// bst.put('c', 3);
+    /// bst.put('d', 4);
+    /// assert_eq!(bst.size(), 4_usize);
+    /// ```
     fn size(&self) -> usize {
         match &self {
             BST::Node {
@@ -29,6 +74,22 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
             _ => 0_usize,
         }
     }
+
+    /// Returns a reference to optional reference to value.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut bst: BST<char, u32> = BST::new();
+    /// bst.put('a', 1);
+    /// assert_eq!(bst.get(&'a'), Some(&1));
+    /// assert_eq!(bst.get(&'b'), None);
+    /// ```
     fn get(&self, key: &K) -> Option<&V> {
         match self {
             BST::Node {
@@ -46,6 +107,21 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
         }
     }
 
+    /// Insert a key-value pair into the `BST`.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut bst: BST<char, u32> = BST::new();
+    /// assert_eq!(bst.is_empty(), true);
+    /// bst.put('a', 1);
+    /// assert_eq!(bst.is_empty(), false);
+    /// ```
     fn put(&mut self, key: K, value: V) {
         match self {
             BST::Node {
@@ -75,6 +151,34 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
         }
     }
 
+    /// Get height of `BST`.
+    ///
+    /// BST is not balanced tree, so in worst-case scenario, height will be
+    /// same as size, like a Linked-List.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut bst: BST<char, u32> = BST::new();
+    /// bst.put('a', 1);
+    /// bst.put('b', 2);
+    /// bst.put('c', 3);
+    /// bst.put('d', 4);
+    /// //  a
+    /// // / \
+    /// //    b
+    /// //   / \
+    /// //      c
+    /// //     / \
+    /// //        d
+    /// assert_eq!(bst.height(), bst.size());
+    /// assert_eq!(bst.height(), 4_usize);
+    /// ```
     fn height(&self) -> usize {
         match self {
             BST::Node {
@@ -88,6 +192,22 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
         }
     }
 
+    /// Checks if `BST` is empty.
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut bst: BST<char, u32> = BST::new();
+    /// assert_eq!(bst.is_empty(), true);
+    /// bst.put('a', 2);
+    /// assert_eq!(bst.is_empty(), false);
+    /// ```
     fn is_empty(&self) -> bool {
         match self {
             BST::Node { .. } => false,
@@ -95,10 +215,45 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
         }
     }
 
+    /// Checks if key exists in `BST`.
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut bst: BST<char, u32> = BST::new();
+    /// bst.put('a', 2);
+    /// assert_eq!(bst.contains(&'a'), true);
+    /// assert_eq!(bst.contains(&'b'), false);
+    /// ```
     fn contains(&self, key: &K) -> bool {
         self.get(key).is_some()
     }
 
+    /// Returns a optional reference to minimal key
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut bst: BST<char, u32> = BST::new();
+    /// assert_eq!(bst.min(), None);
+    /// bst.put('c', 1);
+    /// bst.put('a', 2);
+    /// bst.put('b', 3);
+    /// bst.put('d', 4);
+    /// assert_eq!(bst.min(), Some(&'a'));
+    /// ```
     fn min(&self) -> Option<&K> {
         match self {
             BST::Node {
@@ -118,6 +273,25 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
         }
     }
 
+    /// Returns a optional reference to maximum key
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut bst: BST<char, u32> = BST::new();
+    /// assert_eq!(bst.max(), None);
+    /// bst.put('c', 1);
+    /// bst.put('a', 2);
+    /// bst.put('b', 3);
+    /// bst.put('d', 4);
+    /// assert_eq!(bst.max(), Some(&'d'));
+    /// ```
     fn max(&self) -> Option<&K> {
         match self {
             BST::Node {
@@ -153,6 +327,47 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     }
 }
 
+/// A immutable recursive traversals over `BST`.
+///
+/// `Pre order`
+/// `In order`
+/// `Post order`
+/// `Level order`
+///
+/// # Examples
+///
+/// Basic usage:
+///
+/// ```
+/// use treers::bst::BST;
+/// use treers::{SedgewickMap, Traversals};
+///
+/// let mut bst: BST<char, i32> = BST::new();
+/// bst.put('c', 3);
+/// bst.put('d', 4);
+/// bst.put('b', 2);
+/// bst.put('a', 1);
+///
+/// // Pre order Traversal by keys
+/// for (a, _) in bst.traverse(&Traversals::PreOrder) {
+///     print!("{}, ", *a);
+/// }
+///
+/// // In order Traversal by keys
+/// for (a, _) in bst.traverse(&Traversals::InOrder) {
+///     print!("{}, ", *a);
+/// }
+///
+/// // Post order Traversal by keys
+/// for (a, _) in bst.traverse(&Traversals::PostOrder) {
+///     print!("{}, ", *a);
+/// }
+///
+/// // Level order Traversal by keys
+/// for (a, _) in bst.traverse(&Traversals::LevelOrder) {
+///     print!("{}, ", *a);
+/// }
+/// ```
 impl<'a, K: 'a + Ord, V: 'a> BST<K, V> {
     fn in_order(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
         if let BST::Node {
