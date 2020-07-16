@@ -1,4 +1,4 @@
-use super::SedgewickMap;
+use super::{SedgewickMap, Traversals};
 use std::cmp::Ordering;
 
 pub enum BST<K: Ord, V> {
@@ -136,12 +136,90 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
             _ => None,
         }
     }
+
+    fn traverse(&self, traverse: &Traversals) -> std::vec::IntoIter<(&K, &V)> {
+        let mut vec = Vec::with_capacity(self.size());
+        match traverse {
+            Traversals::PreOrder => self.pre_order(&mut vec),
+            Traversals::InOrder => self.in_order(&mut vec),
+            Traversals::PostOrder => self.post_order(&mut vec),
+            Traversals::LevelOrder => {
+                for level in 1..=self.height() {
+                    self.level_order(&mut vec, level);
+                }
+            }
+        }
+        vec.into_iter()
+    }
+}
+
+impl<'a, K: 'a + Ord, V: 'a> BST<K, V> {
+    fn in_order(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
+        if let BST::Node {
+            ref k,
+            ref v,
+            size: _,
+            ref left,
+            ref right,
+        } = self
+        {
+            left.in_order(vec);
+            vec.push((k, v));
+            right.in_order(vec);
+        }
+    }
+    fn pre_order(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
+        if let BST::Node {
+            ref k,
+            ref v,
+            size: _,
+            ref left,
+            ref right,
+        } = self
+        {
+            vec.push((k, v));
+            left.pre_order(vec);
+            right.pre_order(vec);
+        }
+    }
+
+    fn post_order(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
+        if let BST::Node {
+            ref k,
+            ref v,
+            size: _,
+            ref left,
+            ref right,
+        } = self
+        {
+            left.post_order(vec);
+            right.post_order(vec);
+            vec.push((k, v));
+        }
+    }
+
+    fn level_order(&'a self, vec: &mut Vec<(&'a K, &'a V)>, level: usize) {
+        if let BST::Node {
+            ref k,
+            ref v,
+            size: _,
+            ref left,
+            ref right,
+        } = self
+        {
+            if level == 1 {
+                vec.push((k, v));
+            } else if level > 1 {
+                left.level_order(vec, level - 1);
+                right.level_order(vec, level - 1);
+            }
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::SedgewickMap;
-    use super::BST;
+    use super::{SedgewickMap, Traversals, BST};
 
     #[test]
     fn test_is_empty() {
@@ -235,5 +313,61 @@ mod tests {
         }
         assert_eq!(bst.max(), Some(&6_u32));
         assert_eq!(bst.get(bst.max().unwrap()), bst.max());
+    }
+
+    #[test]
+    fn test_in_order() {
+        let mut bst: BST<char, i32> = BST::new();
+        let res = vec!['a', 'b', 'c', 'd'];
+        let mut it = res.iter();
+        bst.put('c', 3);
+        bst.put('d', 4);
+        bst.put('b', 2);
+        bst.put('a', 1);
+        for (a, _) in bst.traverse(&Traversals::InOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
+    }
+
+    #[test]
+    fn test_pre_order() {
+        let mut bst: BST<char, i32> = BST::new();
+        let res = vec!['c', 'b', 'a', 'd'];
+        let mut it = res.iter();
+        bst.put('c', 3);
+        bst.put('d', 4);
+        bst.put('b', 2);
+        bst.put('a', 1);
+        for (a, _) in bst.traverse(&Traversals::PreOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
+    }
+
+    #[test]
+    fn test_post_order() {
+        let mut bst: BST<char, i32> = BST::new();
+        let res = vec!['a', 'b', 'd', 'c'];
+        let mut it = res.iter();
+        bst.put('c', 3);
+        bst.put('d', 4);
+        bst.put('b', 2);
+        bst.put('a', 1);
+        for (a, _) in bst.traverse(&Traversals::PostOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
+    }
+
+    #[test]
+    fn test_level_order() {
+        let mut bst: BST<char, i32> = BST::new();
+        let res = vec!['c', 'b', 'd', 'a'];
+        let mut it = res.iter();
+        bst.put('c', 3);
+        bst.put('d', 4);
+        bst.put('b', 2);
+        bst.put('a', 1);
+        for (a, _) in bst.traverse(&Traversals::LevelOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
     }
 }
