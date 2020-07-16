@@ -11,6 +11,14 @@ pub trait SedgewickMap<K: Ord, V> {
     fn contains(&self, key: &K) -> bool;
     fn min(&self) -> Option<&K>;
     fn max(&self) -> Option<&K>;
+    fn traverse(&self, traverse: &Traversals) -> std::vec::IntoIter<(&K, &V)>;
+}
+
+pub enum Traversals {
+    PreOrder,
+    InOrder,
+    PostOrder,
+    LevelOrder,
 }
 
 #[cfg(test)]
