@@ -1,23 +1,47 @@
+use crate::{SedgewickMap, Traversals};
 use std::cmp::Ordering;
 
 #[derive(Debug)]
-enum RedBlackTree {
+pub enum RedBlackTree<K: Ord + Clone, V: Clone> {
     Node {
-        k: i32,
-        v: i32,
+        k: K,
+        v: V,
         color: bool,
         size: usize,
-        left: Box<RedBlackTree>,
-        right: Box<RedBlackTree>,
+        left: Box<RedBlackTree<K, V>>,
+        right: Box<RedBlackTree<K, V>>,
     },
     NIL,
 }
 
-impl RedBlackTree {
-    pub fn new() -> Self {
+impl<K: Clone + Ord, V: Clone> Clone for RedBlackTree<K, V> {
+    fn clone(&self) -> RedBlackTree<K, V> {
+        match self {
+            RedBlackTree::Node {
+                ref k,
+                ref v,
+                ref color,
+                ref size,
+                ref left,
+                ref right,
+            } => RedBlackTree::Node {
+                k: k.clone(),
+                v: v.clone(),
+                color: *color,
+                size: *size,
+                left: left.clone(),
+                right: right.clone(),
+            },
+            RedBlackTree::NIL => RedBlackTree::NIL,
+        }
+    }
+}
+
+impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
+    fn new() -> Self {
         RedBlackTree::NIL
     }
-    pub fn size(&self) -> usize {
+    fn size(&self) -> usize {
         match &self {
             RedBlackTree::Node {
                 k: _,
@@ -30,7 +54,7 @@ impl RedBlackTree {
             _ => 0_usize,
         }
     }
-    pub fn get(&self, key: i32) -> Option<i32> {
+    fn get(&self, key: &K) -> Option<&V> {
         match self {
             RedBlackTree::Node {
                 ref k,
@@ -42,12 +66,89 @@ impl RedBlackTree {
             } => match key.cmp(k) {
                 Ordering::Less => left.get(key),
                 Ordering::Greater => right.get(key),
-                _ => Some(*v),
+                _ => Some(v),
             },
             _ => None,
         }
     }
-    fn insert(&mut self, key: i32, value: i32) {
+
+    fn put(&mut self, key: K, value: V) {
+        // move values!
+        self.insert(&key, &value);
+        // set root node to black
+        self.set_color(false);
+    }
+
+    fn height(&self) -> usize {
+        match self {
+            RedBlackTree::Node {
+                k: _,
+                v: _,
+                color: _,
+                size: _,
+                ref left,
+                ref right,
+            } => 1_usize + std::cmp::max(left.height(), right.height()),
+            _ => 0_usize,
+        }
+    }
+    fn is_empty(&self) -> bool {
+        match self {
+            RedBlackTree::Node { .. } => false,
+            _ => true,
+        }
+    }
+    fn contains(&self, key: &K) -> bool {
+        self.get(key).is_some()
+    }
+    fn min(&self) -> Option<&K> {
+        match self {
+            RedBlackTree::Node {
+                ref k,
+                v: _,
+                color: _,
+                size: _,
+                ref left,
+                right: _,
+            } => {
+                if let Some(l) = left.min() {
+                    Some(l)
+                } else {
+                    Some(k)
+                }
+            }
+            _ => None,
+        }
+    }
+
+    fn max(&self) -> Option<&K> {
+        match self {
+            RedBlackTree::Node {
+                ref k,
+                v: _,
+                color: _,
+                size: _,
+                left: _,
+                ref right,
+            } => {
+                if let Some(l) = right.max() {
+                    Some(l)
+                } else {
+                    Some(k)
+                }
+            }
+            _ => None,
+        }
+    }
+
+    // TODO: implement later
+    fn traverse(&self, _traverse: &Traversals) -> std::vec::IntoIter<(&K, &V)> {
+        unimplemented!()
+    }
+}
+
+impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
+    fn insert(&mut self, key: &'a K, value: &'a V) {
         match self {
             RedBlackTree::Node {
                 ref mut k,
@@ -58,51 +159,62 @@ impl RedBlackTree {
                 ref mut right,
             } => {
                 match key.cmp(k) {
-                    Ordering::Less => left.insert(key, value),
-                    Ordering::Greater => right.insert(key, value),
+                    // pass by reference, with same lifetime
+                    Ordering::Less => left.insert(&key, &value),
+                    Ordering::Greater => right.insert(&key, &value),
                     _ => {}
                 }
-                // Lean left
-                println!("inserting numero {}", k);
+                // Rotate Left
                 if right.is_red() && !left.is_red() {
-                    println!("rotate left {}", k);
-
-                    // left.set_vals(*k, *v, *color, *size, RedBlackTree::NIL, RedBlackTree::NIL);
-                    // if right.left.contains(key) {
-                    //     *right = Box::new(RedBlackTree::NIL);
-                    // }
-                    // *k = key;
-                    // *v = value;
-                    // *color = true;
-                    // *size = left.size() + right.size() + 1;
+                    let right_clone = right.clone();
+                    *right = right_clone.get_right_clone();
+                    *color = true;
+                    right.set_color(true);
+                    left.set_vals(
+                        &k,
+                        &v,
+                        true,
+                        *size,
+                        *left.clone(),
+                        *right_clone.get_left_clone(),
+                    );
+                    // Don't move, but use clone, instead
+                    *k = key.clone();
+                    *v = value.clone();
                 }
                 // Balance 4-node
-                if left.is_red() {
-                    if let Some(l) = left.get_left() {
-                        if l.is_red() {
-                            println!("rotate right {}", k);
-                        }
-                    }
-                    // std::mem::swap(left, right);
-                    // right.set_vals(*k, *v, *color);
+                // TODO: fix rotate right later
+                if left.is_red() && left.is_left_red() {
+                    // println!("rotate right {}", key);
+                    // let left_clone = left.clone();
+                    // *left = left_clone.get_left_clone();
+                    // *color = true;
+                    // left.set_color(true);
+                    // right.set_vals(
+                    //     *k,
+                    //     *v,
+                    //     true,
+                    //     *size,
+                    //     *left_clone.get_right_clone(),
+                    //     *right.clone(),
+                    // );
                     // *k = key;
                     // *v = value;
-                    // *color = true;
-                    // *size = left.size() + right.size() + 1;
                 }
                 // Split 4-node
+                // Flip colors
                 if left.is_red() && right.is_red() {
                     *color = true;
-                    left.set_black();
-                    right.set_black();
+                    left.set_color(false);
+                    right.set_color(false);
                 }
                 *size = left.size() + right.size() + 1;
             }
             RedBlackTree::NIL => {
                 // Insert a leaf node
                 *self = RedBlackTree::Node {
-                    k: key,
-                    v: value,
+                    k: key.clone(),
+                    v: value.clone(),
                     color: true,
                     size: 1,
                     left: Box::new(RedBlackTree::NIL),
@@ -112,37 +224,14 @@ impl RedBlackTree {
         }
     }
 
-    fn remove_children(&mut self) {
-        match self {
-            RedBlackTree::Node {
-                k: _,
-                v: _,
-                color: _,
-                size: _,
-                ref mut left,
-                ref mut right,
-            } => {
-                *left = Box::new(RedBlackTree::NIL);
-                *right = Box::new(RedBlackTree::NIL);
-            }
-            _ => {}
-        }
-    }
-
-    pub fn put(&mut self, key: i32, value: i32) {
-        self.insert(key, value);
-        // set root node to black
-        self.set_black();
-    }
-
     fn set_vals(
         &mut self,
-        key: i32,
-        val: i32,
+        key: &'a K,
+        val: &'a V,
         c: bool,
         s: usize,
-        l: RedBlackTree,
-        r: RedBlackTree,
+        l: RedBlackTree<K, V>,
+        r: RedBlackTree<K, V>,
     ) {
         match self {
             RedBlackTree::Node {
@@ -153,17 +242,17 @@ impl RedBlackTree {
                 ref mut left,
                 ref mut right,
             } => {
-                *k = key;
-                *v = val;
+                *k = key.clone();
+                *v = val.clone();
                 *color = c;
                 *size = s;
-                *left = Box::new(r);
-                *right = Box::new(l);
+                *left = Box::new(l);
+                *right = Box::new(r);
             }
             RedBlackTree::NIL => {
                 *self = RedBlackTree::Node {
-                    k: key,
-                    v: val,
+                    k: key.clone(),
+                    v: val.clone(),
                     color: c,
                     size: 1,
                     left: Box::new(l),
@@ -173,17 +262,16 @@ impl RedBlackTree {
         }
     }
 
-    fn set_black(&mut self) {
-        match self {
-            RedBlackTree::Node {
-                k: _,
-                v: _,
-                ref mut color,
-                size: _,
-                left: _,
-                right: _,
-            } => *color = false,
-            _ => {}
+    fn set_color(&mut self, c: bool) {
+        if let RedBlackTree::Node {
+            k: _,
+            v: _,
+            ref mut color,
+            size: _,
+            left: _,
+            right: _,
+        } = self {
+            *color = c;
         }
     }
 
@@ -201,7 +289,7 @@ impl RedBlackTree {
         }
     }
 
-    fn get_left(&self) -> Option<&RedBlackTree> {
+    fn is_left_red(&self) -> bool {
         match self {
             RedBlackTree::Node {
                 k: _,
@@ -210,54 +298,12 @@ impl RedBlackTree {
                 size: _,
                 ref left,
                 right: _,
-            } => Some(left),
-            _ => None,
+            } => left.is_red(),
+            _ => false,
         }
     }
 
-    fn get_left_mut(&mut self) -> Option<&mut RedBlackTree> {
-        match self {
-            RedBlackTree::Node {
-                k: _,
-                v: _,
-                color: _,
-                size: _,
-                ref mut left,
-                right: _,
-            } => Some(left),
-            _ => None,
-        }
-    }
-
-    fn get_right(&self) -> Option<&RedBlackTree> {
-        match self {
-            RedBlackTree::Node {
-                k: _,
-                v: _,
-                color: _,
-                size: _,
-                left: _,
-                ref right,
-            } => Some(right),
-            _ => None,
-        }
-    }
-
-    fn get_right_mut(&mut self) -> Option<&mut RedBlackTree> {
-        match self {
-            RedBlackTree::Node {
-                k: _,
-                v: _,
-                color: _,
-                size: _,
-                left: _,
-                ref mut right,
-            } => Some(right),
-            _ => None,
-        }
-    }
-
-    pub fn height(&self) -> usize {
+    fn get_left_clone(&self) -> Box<RedBlackTree<K, V>> {
         match self {
             RedBlackTree::Node {
                 k: _,
@@ -265,57 +311,23 @@ impl RedBlackTree {
                 color: _,
                 size: _,
                 ref left,
-                ref right,
-            } => 1_usize + std::cmp::max(left.height(), right.height()),
-            _ => 0_usize,
-        }
-    }
-    pub fn is_empty(&self) -> bool {
-        match self {
-            RedBlackTree::Node { .. } => false,
-            _ => true,
-        }
-    }
-    pub fn contains(&self, key: i32) -> bool {
-        self.get(key).is_some()
-    }
-    pub fn min(&self) -> Option<i32> {
-        match self {
-            RedBlackTree::Node {
-                ref k,
-                v: _,
-                color: _,
-                size: _,
-                ref left,
                 right: _,
-            } => {
-                if let Some(l) = left.min() {
-                    Some(l)
-                } else {
-                    Some(*k)
-                }
-            }
-            _ => None,
+            } => left.clone(),
+            _ => Box::new(RedBlackTree::NIL),
         }
     }
 
-    pub fn max(&self) -> Option<i32> {
+    fn get_right_clone(&self) -> Box<RedBlackTree<K, V>> {
         match self {
             RedBlackTree::Node {
-                ref k,
+                k: _,
                 v: _,
                 color: _,
                 size: _,
                 left: _,
                 ref right,
-            } => {
-                if let Some(l) = right.max() {
-                    Some(l)
-                } else {
-                    Some(*k)
-                }
-            }
-            _ => None,
+            } => right.clone(),
+            _ => Box::new(RedBlackTree::NIL),
         }
     }
 }
@@ -323,6 +335,7 @@ impl RedBlackTree {
 #[cfg(test)]
 mod tests {
     use crate::rbtree::RedBlackTree;
+    use crate::SedgewickMap;
 
     #[test]
     fn it_works() {
@@ -331,18 +344,7 @@ mod tests {
 
     #[test]
     fn is_empty() {
-        let r = RedBlackTree::new();
+        let r: RedBlackTree<i32, i32> = RedBlackTree::new();
         assert_eq!(r.is_empty(), true);
-    }
-
-    #[test]
-    fn test_main() {
-        let mut tree = RedBlackTree::new();
-        tree.put(1, 2);
-        println!("{:?}", tree);
-        tree.put(2, 4);
-        println!("{:?}", tree);
-        tree.put(3, 4);
-        println!("{:?}", tree);
     }
 }
