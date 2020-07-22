@@ -422,11 +422,12 @@ impl<'a, K: 'a + Ord, V: 'a> BST<K, V> {
             ref right,
         } = self
         {
-            if level == 1 {
-                vec.push((k, v));
-            } else if level > 1 {
-                left.level_order(vec, level - 1);
-                right.level_order(vec, level - 1);
+            match level {
+                1 => vec.push((k, v)),
+                _ => {
+                    left.level_order(vec, level - 1);
+                    right.level_order(vec, level - 1);
+                }
             }
         }
     }
@@ -489,10 +490,11 @@ mod tests {
         assert_eq!(bst.size(), 2);
     }
 
-    // #[should_panic]
+    // overflowed its stack
+    // fatal runtime error: stack overflow
     #[test]
     #[ignore]
-    fn ignored_test_size_million() {
+    fn test_size_million() {
         let mut bst: BST<u64, u64> = BST::new();
         for i in 1..=1_000_001_u64 {
             bst.put(i, i + 1);
