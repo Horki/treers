@@ -290,23 +290,27 @@ impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
                     *v = value.clone();
                 }
                 // Balance 4-node
-                // TODO: fix rotate right later
+                // Rotate Right
                 if left.is_red() && left.is_left_red() {
-                    // println!("rotate right {}", key);
-                    // let left_clone = left.clone();
-                    // *left = left_clone.get_left_clone();
-                    // *color = true;
-                    // left.set_color(true);
-                    // right.set_vals(
-                    //     *k,
-                    //     *v,
-                    //     true,
-                    //     *size,
-                    //     *left_clone.get_right_clone(),
-                    //     *right.clone(),
-                    // );
-                    // *k = key;
-                    // *v = value;
+                    let left_clone = left.clone();
+                    *left = left_clone.get_left_clone();
+                    *color = true;
+                    left.set_color(true);
+                    right.set_vals(
+                        &k,
+                        &v,
+                        true,
+                        right.size() + left.size() - 1,
+                        *left_clone.get_right_clone(),
+                        *right.clone(),
+                    );
+                    // Don't move, but use clone, instead, from left clone
+                    if let Some(kk) = left_clone.get_key() {
+                        *k = kk.clone();
+                    }
+                    if let Some(vv) = left_clone.get_val() {
+                        *v = vv.clone();
+                    }
                 }
                 // Split 4-node
                 // Flip colors
@@ -366,6 +370,39 @@ impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
                     right: Box::new(r),
                 }
             }
+        }
+    }
+
+    fn get_key(&self) -> Option<&K> {
+        if let RedBlackTree::Node {
+            ref k,
+            // ref v,
+            v: _,
+            color: _,
+            size: _,
+            left: _,
+            right: _,
+        } = self
+        {
+            Some(k)
+        } else {
+            None
+        }
+    }
+
+    fn get_val(&self) -> Option<&V> {
+        if let RedBlackTree::Node {
+            k: _,
+            ref v,
+            color: _,
+            size: _,
+            left: _,
+            right: _,
+        } = self
+        {
+            Some(v)
+        } else {
+            None
         }
     }
 
@@ -544,7 +581,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_random_pre_order() {
         let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
         let res = vec!['c', 'b', 'a', 'd'];
@@ -559,7 +595,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_random_post_order() {
         let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
         let res = vec!['a', 'b', 'd', 'c'];
@@ -574,7 +609,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_random_level_order() {
         let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
         let res = vec!['c', 'b', 'd', 'a'];
@@ -661,7 +695,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_right_rotate_size_and_height() {
         let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
         let mut i = 1;
@@ -674,7 +707,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_right_rotate_pre_order() {
         let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
         let res = vec!['f', 'd', 'b', 'a', 'c', 'e', 'h', 'g', 'i'];
@@ -705,7 +737,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_right_rotate_post_order() {
         let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
         let res = vec!['a', 'c', 'b', 'e', 'd', 'g', 'i', 'h', 'f'];
@@ -721,7 +752,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_right_rotate_level_order() {
         let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
         let res = vec!['f', 'd', 'h', 'b', 'e', 'g', 'i', 'a', 'c'];
