@@ -1,4 +1,4 @@
-use super::{SedgewickMap, Traversals};
+use super::SedgewickMap;
 use std::cmp::Ordering;
 
 /// 3.2 Binary Search Tree
@@ -377,7 +377,8 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
 
 #[cfg(test)]
 mod tests {
-    use super::{SedgewickMap, Traversals, BST};
+    use super::{SedgewickMap, BST};
+    use crate::Traversals;
 
     #[test]
     fn test_is_empty() {
