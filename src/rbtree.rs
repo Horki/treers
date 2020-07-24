@@ -294,13 +294,14 @@ impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
                 if left.is_red() && left.is_left_red() {
                     let left_clone = left.clone();
                     *left = left_clone.get_left_clone();
+                    let left_size = left.size();
                     *color = true;
                     left.set_color(true);
                     right.set_vals(
                         &k,
                         &v,
                         true,
-                        right.size() + left.size() - 1,
+                        left_size,
                         *left_clone.get_right_clone(),
                         *right.clone(),
                     );
@@ -764,5 +765,37 @@ mod tests {
         for (a, _) in rbtree.traverse(&Traversals::LevelOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
+    }
+
+    #[test]
+    fn test_left_rotate_thousand() {
+        let mut rbtree = RedBlackTree::new();
+        for i in 1..=1_000_u32 {
+            rbtree.put(i, i);
+        }
+        let cnt = rbtree.traverse(&Traversals::InOrder).count();
+        assert_eq!(cnt, 1_000_usize);
+        assert_eq!(rbtree.size(), 1_000_usize);
+        assert_eq!(rbtree.size(), cnt);
+        assert_eq!(rbtree.height(), 501_usize);
+        assert_eq!(rbtree.min(), Some(&1_u32));
+        assert_eq!(rbtree.max(), Some(&1000_u32));
+        assert_eq!(rbtree.get(&501_u32), Some(&501_u32));
+    }
+
+    #[test]
+    fn test_right_rotate_thousand() {
+        let mut rbtree = RedBlackTree::new();
+        for i in (1..=1_000_u32).rev() {
+            rbtree.put(i, i);
+        }
+        let cnt = rbtree.traverse(&Traversals::InOrder).count();
+        assert_eq!(cnt, 1_000_usize);
+        assert_eq!(rbtree.size(), 1_000_usize);
+        assert_eq!(rbtree.size(), cnt);
+        assert_eq!(rbtree.height(), 15_usize);
+        assert_eq!(rbtree.min(), Some(&1_u32));
+        assert_eq!(rbtree.max(), Some(&1000_u32));
+        assert_eq!(rbtree.get(&501_u32), Some(&501_u32));
     }
 }
