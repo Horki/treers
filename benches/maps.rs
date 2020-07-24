@@ -8,7 +8,7 @@ use treers::rbtree::RedBlackTree;
 use treers::SedgewickMap;
 
 #[bench]
-fn bst_add_one_million(b: &mut Bencher) {
+fn bst_add_one_thousand_asc(b: &mut Bencher) {
     let mut bst = BST::new();
     b.iter(|| {
         for i in 1..=1_000_u64 {
@@ -18,7 +18,17 @@ fn bst_add_one_million(b: &mut Bencher) {
 }
 
 #[bench]
-fn std_btree_add_one_million(b: &mut Bencher) {
+fn bst_add_one_thousand_desc(b: &mut Bencher) {
+    let mut bst = BST::new();
+    b.iter(|| {
+        for i in (1..=1_000_u64).rev() {
+            bst.put(i, i + 1);
+        }
+    });
+}
+
+#[bench]
+fn std_btree_add_one_thousand(b: &mut Bencher) {
     let mut btree = BTreeMap::new();
     b.iter(|| {
         for i in 1..=1_000_u64 {
@@ -28,7 +38,7 @@ fn std_btree_add_one_million(b: &mut Bencher) {
 }
 
 #[bench]
-fn rbtree_add_one_million_left_rotate(b: &mut Bencher) {
+fn rbtree_add_one_thousand_left_rotate(b: &mut Bencher) {
     let mut rbtree: RedBlackTree<u64, u64> = RedBlackTree::new();
     b.iter(|| {
         for i in 1..=1_000_u64 {
@@ -38,9 +48,7 @@ fn rbtree_add_one_million_left_rotate(b: &mut Bencher) {
 }
 
 #[bench]
-#[ignore]
-fn rbtree_add_one_million_right_rotate(b: &mut Bencher) {
-    // TODO: fix, right rotate
+fn rbtree_add_one_thousand_right_rotate(b: &mut Bencher) {
     let mut rbtree = RedBlackTree::new();
     b.iter(|| {
         for i in (1..=1_000_u64).rev() {
