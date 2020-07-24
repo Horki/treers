@@ -433,18 +433,6 @@ mod tests {
         assert_eq!(bst.size(), 2);
     }
 
-    // overflowed its stack
-    // fatal runtime error: stack overflow
-    #[test]
-    #[ignore]
-    fn test_size_million() {
-        let mut bst: BST<u64, u64> = BST::new();
-        for i in 1..=1_000_001_u64 {
-            bst.put(i, i + 1);
-        }
-        assert_eq!(bst.size(), 1_000_000);
-    }
-
     #[test]
     fn test_size_and_height_one_thousand() {
         let mut bst: BST<u64, u64> = BST::new();
