@@ -23,9 +23,17 @@ fn left_rotate() {
     dbg!(rbtree.clone());
     println!("size = {}", rbtree.size());
     println!("height = {}", rbtree.height());
+    {
+        let mut rbtree_left_max = RedBlackTree::new();
+        for i in 1..=1000_u64 {
+            rbtree_left_max.put(i, i);
+        }
+        println!("min = {}", rbtree_left_max.min().unwrap());
+        println!("max = {}", rbtree_left_max.max().unwrap());
+        println!("500 == {}", rbtree_left_max.get(&500).unwrap());
+    }
 }
 
-// TODO: fix right rotate
 fn right_rotate() {
     let mut rbtree: RedBlackTree<u32, u32> = RedBlackTree::new();
     rbtree.put(9, 2);
@@ -40,12 +48,21 @@ fn right_rotate() {
     dbg!(rbtree.clone());
     println!("size = {}", rbtree.size());
     println!("height = {}", rbtree.height());
+    {
+        let mut rbtree_right_max = RedBlackTree::new();
+        for i in (1..=1000_u64).rev() {
+            rbtree_right_max.put(i, i);
+        }
+        println!("min = {}", rbtree_right_max.min().unwrap());
+        println!("max = {}", rbtree_right_max.max().unwrap());
+        println!("500 == {}", rbtree_right_max.get(&500).unwrap());
+    }
 }
 
 fn main() {
     println!("Working left rotate");
     left_rotate();
 
-    println!("Non-Working right rotate");
+    println!("Working right rotate");
     right_rotate();
 }
