@@ -605,15 +605,11 @@ mod tests {
         let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
         let res = vec!['h', 'f', 'd', 'b', 'a', 'c', 'e', 'g', 'i'];
         let mut it = res.iter();
-        rbtree.put('a', 1);
-        rbtree.put('b', 2);
-        rbtree.put('c', 3);
-        rbtree.put('d', 4);
-        rbtree.put('e', 5);
-        rbtree.put('f', 6);
-        rbtree.put('g', 7);
-        rbtree.put('h', 8);
-        rbtree.put('i', 9);
+        let mut i = 1;
+        for c in 'a'..='i' {
+            rbtree.put(c, i);
+            i += 1;
+        }
         for (a, _) in rbtree.traverse(&Traversals::PreOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -656,6 +652,82 @@ mod tests {
         let mut it = res.iter();
         let mut i = 1;
         for c in 'a'..='i' {
+            rbtree.put(c, i);
+            i += 1;
+        }
+        for (a, _) in rbtree.traverse(&Traversals::LevelOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
+    }
+
+    #[test]
+    #[ignore]
+    fn test_right_rotate_size_and_height() {
+        let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+        let mut i = 1;
+        for c in ('a'..='i').rev() {
+            rbtree.put(c, i);
+            i += 1;
+        }
+        assert_eq!(rbtree.size(), 9_usize);
+        assert_eq!(rbtree.height(), 4_usize);
+    }
+
+    #[test]
+    #[ignore]
+    fn test_right_rotate_pre_order() {
+        let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+        let res = vec!['f', 'd', 'b', 'a', 'c', 'e', 'h', 'g', 'i'];
+        let mut it = res.iter();
+        let mut i = 1;
+        for c in ('a'..='i').rev() {
+            rbtree.put(c, i);
+            i += 1;
+        }
+        for (a, _) in rbtree.traverse(&Traversals::PreOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
+    }
+
+    #[test]
+    fn test_right_rotate_in_order() {
+        let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+        let res = vec!['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
+        let mut it = res.iter();
+        let mut i = 1;
+        for c in ('a'..='i').rev() {
+            rbtree.put(c, i);
+            i += 1;
+        }
+        for (a, _) in rbtree.traverse(&Traversals::InOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
+    }
+
+    #[test]
+    #[ignore]
+    fn test_right_rotate_post_order() {
+        let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+        let res = vec!['a', 'c', 'b', 'e', 'd', 'g', 'i', 'h', 'f'];
+        let mut it = res.iter();
+        let mut i = 1;
+        for c in ('a'..='i').rev() {
+            rbtree.put(c, i);
+            i += 1;
+        }
+        for (a, _) in rbtree.traverse(&Traversals::PostOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
+    }
+
+    #[test]
+    #[ignore]
+    fn test_right_rotate_level_order() {
+        let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+        let res = vec!['f', 'd', 'h', 'b', 'e', 'g', 'i', 'a', 'c'];
+        let mut it = res.iter();
+        let mut i = 1;
+        for c in ('a'..='i').rev() {
             rbtree.put(c, i);
             i += 1;
         }
