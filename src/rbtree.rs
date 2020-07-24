@@ -1,4 +1,4 @@
-use crate::{SedgewickMap, Traversals};
+use crate::SedgewickMap;
 use std::cmp::Ordering;
 
 #[derive(Debug)]
@@ -207,21 +207,6 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
             }
         }
     }
-
-    // fn traverse(&self, traverse: &Traversals) -> std::vec::IntoIter<(&K, &V)> {
-    //     let mut vec = Vec::with_capacity(self.size());
-    //     match traverse {
-    //         Traversals::PreOrder => self.pre_order(&mut vec),
-    //         Traversals::InOrder => self.in_order(&mut vec),
-    //         Traversals::PostOrder => self.post_order(&mut vec),
-    //         Traversals::LevelOrder => {
-    //             for level in 1..=self.height() {
-    //                 self.level_order(&mut vec, level);
-    //             }
-    //         }
-    //     }
-    //     vec.into_iter()
-    // }
 }
 
 // TODO: almost same as in BST, refactor later!
@@ -603,4 +588,79 @@ mod tests {
         }
     }
 
+    #[test]
+    fn test_left_rotate_size_and_height() {
+        let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+        let mut i = 1;
+        for c in 'a'..='i' {
+            rbtree.put(c, i);
+            i += 1;
+        }
+        assert_eq!(rbtree.size(), 9_usize);
+        assert_eq!(rbtree.height(), 5_usize);
+    }
+
+    #[test]
+    fn test_left_rotate_pre_order() {
+        let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+        let res = vec!['h', 'f', 'd', 'b', 'a', 'c', 'e', 'g', 'i'];
+        let mut it = res.iter();
+        rbtree.put('a', 1);
+        rbtree.put('b', 2);
+        rbtree.put('c', 3);
+        rbtree.put('d', 4);
+        rbtree.put('e', 5);
+        rbtree.put('f', 6);
+        rbtree.put('g', 7);
+        rbtree.put('h', 8);
+        rbtree.put('i', 9);
+        for (a, _) in rbtree.traverse(&Traversals::PreOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
+    }
+
+    #[test]
+    fn test_left_rotate_in_order() {
+        let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+        let res = vec!['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
+        let mut it = res.iter();
+        let mut i = 1;
+        for c in 'a'..='i' {
+            rbtree.put(c, i);
+            i += 1;
+        }
+        for (a, _) in rbtree.traverse(&Traversals::InOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
+    }
+
+    #[test]
+    fn test_left_rotate_post_order() {
+        let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+        let res = vec!['a', 'c', 'b', 'e', 'd', 'g', 'f', 'i', 'h'];
+        let mut it = res.iter();
+        let mut i = 1;
+        for c in 'a'..='i' {
+            rbtree.put(c, i);
+            i += 1;
+        }
+        for (a, _) in rbtree.traverse(&Traversals::PostOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
+    }
+
+    #[test]
+    fn test_left_rotate_level_order() {
+        let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+        let res = vec!['h', 'f', 'i', 'd', 'g', 'b', 'e', 'a', 'c'];
+        let mut it = res.iter();
+        let mut i = 1;
+        for c in 'a'..='i' {
+            rbtree.put(c, i);
+            i += 1;
+        }
+        for (a, _) in rbtree.traverse(&Traversals::LevelOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
+    }
 }
