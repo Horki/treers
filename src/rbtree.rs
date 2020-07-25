@@ -209,51 +209,6 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
     }
 }
 
-// TODO: almost same as in BST, refactor later!
-/// A immutable recursive traversals over `Red Black Tree`.
-///
-/// `Pre order`
-/// `In order`
-/// `Post order`
-/// `Level order`
-///
-/// # Examples
-///
-/// Basic usage:
-///
-/// ```
-/// use treers::{SedgewickMap, Traversals};
-/// use treers::rbtree::RedBlackTree;
-///
-/// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
-/// rbtree.put('c', 3);
-/// rbtree.put('d', 4);
-/// rbtree.put('b', 2);
-/// rbtree.put('a', 1);
-///
-/// // Pre order Traversal by keys
-/// for (a, _) in rbtree.traverse(&Traversals::PreOrder) {
-///     print!("{}, ", *a);
-/// }
-///
-/// // In order Traversal by keys
-/// for (a, _) in rbtree.traverse(&Traversals::InOrder) {
-///     print!("{}, ", *a);
-/// }
-///
-/// // Post order Traversal by keys
-/// for (a, _) in rbtree.traverse(&Traversals::PostOrder) {
-///     print!("{}, ", *a);
-/// }
-///
-/// // Level order Traversal by keys
-/// for (a, _) in rbtree.traverse(&Traversals::LevelOrder) {
-///     print!("{}, ", *a);
-/// }
-/// ```
-// impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
-// }
-
 impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
     fn insert(&mut self, key: &'a K, value: &'a V) {
         match self {
