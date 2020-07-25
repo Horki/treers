@@ -1,7 +1,7 @@
 extern crate treers;
 
 use treers::bst::BST;
-use treers::{SedgewickMap, Traversals};
+use treers::{SedgewickMap, Traversals, TreeTraversal};
 
 fn main() {
     let mut bst: BST<char, i32> = BST::new();
