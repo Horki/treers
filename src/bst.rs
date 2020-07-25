@@ -1,4 +1,5 @@
 use super::SedgewickMap;
+use crate::TreeTraversal;
 use std::cmp::Ordering;
 
 /// 3.2 Binary Search Tree
@@ -310,21 +311,9 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
             _ => None,
         }
     }
+}
 
-    fn in_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
-        if let BST::Node {
-            ref k,
-            ref v,
-            size: _,
-            ref left,
-            ref right,
-        } = self
-        {
-            left.in_order(vec);
-            vec.push((k, v));
-            right.in_order(vec);
-        }
-    }
+impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for BST<K, V> {
     fn pre_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
         if let BST::Node {
             ref k,
@@ -337,6 +326,20 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
             vec.push((k, v));
             left.pre_order(vec);
             right.pre_order(vec);
+        }
+    }
+    fn in_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
+        if let BST::Node {
+            ref k,
+            ref v,
+            size: _,
+            ref left,
+            ref right,
+        } = self
+        {
+            left.in_order(vec);
+            vec.push((k, v));
+            right.in_order(vec);
         }
     }
 
@@ -378,7 +381,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
 #[cfg(test)]
 mod tests {
     use super::{SedgewickMap, BST};
-    use crate::Traversals;
+    use crate::{Traversals, TreeTraversal};
 
     #[test]
     fn test_is_empty() {

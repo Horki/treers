@@ -1,4 +1,4 @@
-use crate::SedgewickMap;
+use crate::{SedgewickMap, TreeTraversal};
 use std::cmp::Ordering;
 
 #[derive(Debug)]
@@ -140,22 +140,9 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
             _ => None,
         }
     }
+}
 
-    fn in_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
-        if let RedBlackTree::Node {
-            ref k,
-            ref v,
-            color: _,
-            size: _,
-            ref left,
-            ref right,
-        } = self
-        {
-            left.in_order(vec);
-            vec.push((k, v));
-            right.in_order(vec);
-        }
-    }
+impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for RedBlackTree<K, V> {
     fn pre_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
         if let RedBlackTree::Node {
             ref k,
@@ -169,6 +156,21 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
             vec.push((k, v));
             left.pre_order(vec);
             right.pre_order(vec);
+        }
+    }
+    fn in_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
+        if let RedBlackTree::Node {
+            ref k,
+            ref v,
+            color: _,
+            size: _,
+            ref left,
+            ref right,
+        } = self
+        {
+            left.in_order(vec);
+            vec.push((k, v));
+            right.in_order(vec);
         }
     }
 
@@ -436,7 +438,7 @@ impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
 #[cfg(test)]
 mod tests {
     use crate::rbtree::RedBlackTree;
-    use crate::{SedgewickMap, Traversals};
+    use crate::{SedgewickMap, Traversals, TreeTraversal};
 
     #[test]
     fn test_is_empty() {
