@@ -9,7 +9,26 @@ pub trait SedgewickMap<K: Ord, V> {
     fn put(&mut self, key: K, value: V);
     fn height(&self) -> usize;
     fn is_empty(&self) -> bool;
-    fn contains(&self, key: &K) -> bool;
+
+    /// Checks if key exists in `Tree`.
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut bst: BST<char, u32> = BST::new();
+    /// bst.put('a', 2);
+    /// assert_eq!(bst.contains(&'a'), true);
+    /// assert_eq!(bst.contains(&'b'), false);
+    /// ```
+    fn contains(&self, key: &K) -> bool {
+        self.get(&key).is_some()
+    }
     fn min(&self) -> Option<&K>;
     fn max(&self) -> Option<&K>;
 }

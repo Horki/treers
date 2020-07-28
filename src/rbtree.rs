@@ -98,9 +98,7 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
             _ => true,
         }
     }
-    fn contains(&self, key: &K) -> bool {
-        self.get(key).is_some()
-    }
+
     fn min(&self) -> Option<&K> {
         match self {
             RedBlackTree::Node {

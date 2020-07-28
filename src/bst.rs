@@ -216,25 +216,6 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
         }
     }
 
-    /// Checks if key exists in `BST`.
-    ///
-    ///
-    /// # Examples
-    ///
-    /// Basic usage:
-    ///
-    /// ```
-    /// use treers::bst::BST;
-    /// use treers::SedgewickMap;
-    ///
-    /// let mut bst: BST<char, u32> = BST::new();
-    /// bst.put('a', 2);
-    /// assert_eq!(bst.contains(&'a'), true);
-    /// assert_eq!(bst.contains(&'b'), false);
-    /// ```
-    fn contains(&self, key: &K) -> bool {
-        self.get(key).is_some()
-    }
 
     /// Returns a optional reference to minimal key
     ///
