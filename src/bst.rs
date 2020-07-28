@@ -216,7 +216,6 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
         }
     }
 
-
     /// Returns a optional reference to minimal key
     ///
     ///
