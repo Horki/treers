@@ -8,9 +8,11 @@ pub trait SedgewickMap<K: Ord, V> {
     fn get(&self, key: &K) -> Option<&V>;
     fn put(&mut self, key: K, value: V);
     fn height(&self) -> usize;
-    fn is_empty(&self) -> bool;
+    fn is_empty(&self) -> bool {
+        self.size().eq(&0_usize)
+    }
 
-    /// Checks if key exists in `Tree`.
+    /// Checks if key exists in `Tree`
     ///
     ///
     /// # Examples
