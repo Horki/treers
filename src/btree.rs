@@ -28,11 +28,7 @@ impl<K: Ord + Clone, V: Clone> Entry<K, V> {
         }
     }
     fn create(key: K, val: V, next: Vec<Entry<K, V>>) -> Self {
-        Self {
-            key,
-            val,
-            next,
-        }
+        Self { key, val, next }
     }
 }
 
@@ -68,7 +64,11 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for BalancedTree<K, V> {
         if let Some(u) = Self::insert(&mut self.root, key, value, self.height) {
             // need to split the root
             let mut t: Vec<Entry<K, V>> = Vec::with_capacity(M / 2);
-            t.push(Entry::create(self.root[0].key.clone(), self.root[0].val.clone(), self.root.clone()));
+            t.push(Entry::create(
+                self.root[0].key.clone(),
+                self.root[0].val.clone(),
+                self.root.clone(),
+            ));
             t.push(Entry::create(u[0].key.clone(), u[0].val.clone(), u));
             self.root = t;
             self.height += 1;
@@ -114,17 +114,16 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for BalancedTree<K, V> {
 impl<'a, K: Ord + Clone + 'a, V: Clone + 'a> BalancedTree<K, V> {
     // TODO: fix lifetime params for search!
     fn search(node: &'a [Entry<K, V>], key: K, height: usize) -> Option<&'a V> {
-        let children = node;
         if height == 0_usize {
-            for n in children {
+            for n in node {
                 if key.eq(&n.key) {
                     return Some(&n.val);
                 }
             }
         } else {
-            for j in 0..children.len() {
-                if (j + 1).eq(&children.len()) || key.lt(&children[j + 1].key) {
-                    return Self::search(&children[j].next, key, height - 1);
+            for j in 0..node.len() {
+                if (j + 1).eq(&node.len()) || key.lt(&node[j + 1].key) {
+                    return Self::search(&node[j].next, key, height - 1);
                 }
             }
         }
@@ -258,5 +257,4 @@ mod tests {
         assert_eq!(btree.get(&501_i32), Some(&502_i32));
         assert_eq!(btree.contains(&501_i32), true);
     }
-
 }
