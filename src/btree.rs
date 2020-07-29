@@ -5,7 +5,7 @@ const M: usize = 4_usize;
 #[derive(Debug)]
 pub struct Entry<K: Ord + Clone, V: Clone> {
     key: K,
-    val: V,
+    val: Option<V>,
     next: Vec<Entry<K, V>>,
 }
 
@@ -20,14 +20,14 @@ impl<K: Clone + Ord, V: Clone> Clone for Entry<K, V> {
 }
 
 impl<K: Ord + Clone, V: Clone> Entry<K, V> {
-    fn new(key: K, val: V) -> Self {
+    fn new(key: K, val: Option<V>) -> Self {
         Self {
             key,
             val,
             next: Vec::with_capacity(M),
         }
     }
-    fn create(key: K, val: V, next: Vec<Entry<K, V>>) -> Self {
+    fn create(key: K, val: Option<V>, next: Vec<Entry<K, V>>) -> Self {
         Self { key, val, next }
     }
 }
@@ -63,13 +63,14 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for BalancedTree<K, V> {
     fn put(&mut self, key: K, value: V) {
         if let Some(u) = Self::insert(&mut self.root, key, value, self.height) {
             // need to split the root
+            println!("Split the root!!!");
             let mut t: Vec<Entry<K, V>> = Vec::with_capacity(M / 2);
             t.push(Entry::create(
                 self.root[0].key.clone(),
-                self.root[0].val.clone(),
+                None,
                 self.root.clone(),
             ));
-            t.push(Entry::create(u[0].key.clone(), u[0].val.clone(), u));
+            t.push(Entry::create(u[0].key.clone(), None, u));
             self.root = t;
             self.height += 1;
         }
@@ -117,13 +118,13 @@ impl<'a, K: Ord + Clone + 'a, V: Clone + 'a> BalancedTree<K, V> {
         if height == 0_usize {
             for n in node {
                 if key.eq(&n.key) {
-                    return Some(&n.val);
+                    return n.val.as_ref();
                 }
             }
         } else {
             for j in 0..node.len() {
                 if (j + 1).eq(&node.len()) || key.lt(&node[j + 1].key) {
-                    return Self::search(&node[j].next, key, height - 1);
+                    return Self::search(&node[j].next, key, height - 1_usize);
                 }
             }
         }
@@ -132,10 +133,9 @@ impl<'a, K: Ord + Clone + 'a, V: Clone + 'a> BalancedTree<K, V> {
     // TODO: fix lifetime params for insert!
     fn insert(h: &mut Vec<Entry<K, V>>, key: K, val: V, height: usize) -> Option<Vec<Entry<K, V>>> {
         let mut j = 0;
-        let mut t = Entry::new(key.clone(), val.clone());
+        let mut t = Entry::new(key.clone(), Some(val.clone()));
         if height == 0_usize {
             // External Node
-            // for j in 0..h.len() {
             while j < h.len() {
                 if key.lt(&h[j].key) {
                     break;
@@ -143,14 +143,13 @@ impl<'a, K: Ord + Clone + 'a, V: Clone + 'a> BalancedTree<K, V> {
                 j += 1;
             }
         } else {
-            j = 0;
             // Internal Node
-            // for j in 0..h.len() {
             while j < h.len() {
-                if (j + 1).eq(&h.len()) || key.lt(&h[j + 1].key) {
+                if (j + 1_usize).eq(&h.len()) || key.lt(&h[j + 1].key) {
                     if let Some(u) = Self::insert(&mut h[j].next, key, val, height - 1_usize) {
                         t.key = u[0].key.clone();
                         t.next = u;
+                        j += 1;
                         break;
                     } else {
                         return None;
@@ -159,18 +158,29 @@ impl<'a, K: Ord + Clone + 'a, V: Clone + 'a> BalancedTree<K, V> {
                 j += 1;
             }
         }
-        for i in (j..h.len()).rev() {
-            h[i] = h[i - 1].clone();
+        let mut i = h.len();
+        while i.gt(&j) {
+            if i.eq(&h.len()) {
+                h.push(h[i - 1].clone());
+            } else {
+                h.swap(i, i - 1);
+            }
+            i -= 1;
         }
-        h.insert(j, t);
+        if j.eq(&h.len()) {
+            h.push(t);
+        } else {
+            h[j] = t;
+        }
 
         if h.len().lt(&M) {
             None
         } else {
             // Split node in half
             let mut t: Vec<Entry<K, V>> = Vec::with_capacity(M / 2);
-            for j in 0..(M / 2) {
-                t.push(h[M / 2 + j].clone());
+            // TODO: work for M=4, find a better solution!
+            for _ in 0..(M / 2) {
+                t.push(h.remove(M / 2));
             }
             Some(t)
         }
@@ -227,15 +237,13 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_left_rotate_one_thousand() {
-        // TODO: fix 'search is not working properly'
         let mut btree: BalancedTree<i32, i32> = BalancedTree::new();
-        for i in 1..=1_000 {
+        for i in 1..=1_000_i32 {
             btree.put(i, i + 1);
         }
         assert_eq!(btree.size(), 1_000_usize);
-        assert_eq!(btree.height(), 9_usize);
+        assert_eq!(btree.height(), 8_usize);
         assert_eq!(btree.min(), Some(&1_i32));
         assert_eq!(btree.max(), Some(&1_000_i32));
         assert_eq!(btree.get(&501_i32), Some(&502_i32));
@@ -243,15 +251,13 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_right_rotate_one_thousand() {
-        // TODO: fix 'attempt to subtract with overflow'
         let mut btree: BalancedTree<i32, i32> = BalancedTree::new();
-        for i in (1..=1_000).rev() {
+        for i in (1..=1_000_i32).rev() {
             btree.put(i, i + 1);
         }
         assert_eq!(btree.size(), 1_000_usize);
-        assert_eq!(btree.height(), 9_usize);
+        assert_eq!(btree.height(), 8_usize);
         assert_eq!(btree.min(), Some(&1_i32));
         assert_eq!(btree.max(), Some(&1_000_i32));
         assert_eq!(btree.get(&501_i32), Some(&502_i32));
