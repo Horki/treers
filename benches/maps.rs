@@ -4,9 +4,9 @@ extern crate test;
 use std::collections::BTreeMap;
 use test::Bencher;
 use treers::bst::BST;
+use treers::btree::BalancedTree;
 use treers::rbtree::RedBlackTree;
 use treers::SedgewickMap;
-use treers::btree::BalancedTree;
 
 #[bench]
 fn bst_add_one_thousand_asc(b: &mut Bencher) {
@@ -58,23 +58,21 @@ fn rbtree_add_one_thousand_right_rotate(b: &mut Bencher) {
     });
 }
 
-
 #[bench]
 fn btree_add_one_thousand_left_rotate(b: &mut Bencher) {
     let mut btree: BalancedTree<u64, u64> = BalancedTree::new();
     b.iter(|| {
-        for i in 1..=1_000_u64 {
+        for i in 1..=1000_u64 {
             btree.put(i, i + 1);
         }
     });
 }
 
-
 #[bench]
 fn btree_add_one_thousand_right_rotate(b: &mut Bencher) {
     let mut btree: BalancedTree<u64, u64> = BalancedTree::new();
     b.iter(|| {
-        for i in (1..=1_000_u64).rev() {
+        for i in (1..=1000_u64).rev() {
             btree.put(i, i + 1);
         }
     });
