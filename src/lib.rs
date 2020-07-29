@@ -108,6 +108,7 @@ pub enum Traversals {
 mod tests {
     use super::bst::BST;
     use super::SedgewickMap;
+    use crate::btree::BalancedTree;
     use crate::rbtree::RedBlackTree;
 
     #[test]
@@ -123,7 +124,10 @@ mod tests {
     fn test_empty() {
         let bst: BST<i32, i32> = BST::new();
         let rbt: RedBlackTree<i32, i32> = RedBlackTree::new();
+        let btree: BalancedTree<i32, i32> = BalancedTree::new();
+
         assert_eq!(is_empty(&bst), true);
         assert_eq!(is_empty(&rbt), true);
+        assert_eq!(is_empty(&btree), true);
     }
 }
