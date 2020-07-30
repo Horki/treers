@@ -2,11 +2,13 @@ use crate::SedgewickMap;
 
 const M: usize = 4_usize;
 
+type Node<K, V> = Vec<Entry<K, V>>;
+
 #[derive(Debug)]
-pub struct Entry<K: Ord + Clone, V: Clone> {
+struct Entry<K: Ord + Clone, V: Clone> {
     key: K,
     val: Option<V>,
-    next: Vec<Entry<K, V>>,
+    next: Node<K, V>,
 }
 
 impl<K: Clone + Ord, V: Clone> Clone for Entry<K, V> {
@@ -27,14 +29,14 @@ impl<K: Ord + Clone, V: Clone> Entry<K, V> {
             next: Vec::with_capacity(M),
         }
     }
-    fn create(key: K, val: Option<V>, next: Vec<Entry<K, V>>) -> Self {
+    fn create(key: K, val: Option<V>, next: Node<K, V>) -> Self {
         Self { key, val, next }
     }
 }
 
 #[derive(Debug)]
 pub struct BalancedTree<K: Ord + Clone, V: Clone> {
-    root: Vec<Entry<K, V>>,
+    root: Node<K, V>,
     size: usize,
     height: usize,
 }
@@ -47,6 +49,7 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for BalancedTree<K, V> {
             height: 0_usize,
         }
     }
+
     fn size(&self) -> usize {
         self.size
     }
@@ -63,8 +66,7 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for BalancedTree<K, V> {
     fn put(&mut self, key: K, value: V) {
         if let Some(u) = Self::insert(&mut self.root, key, value, self.height) {
             // need to split the root
-            println!("Split the root!!!");
-            let mut t: Vec<Entry<K, V>> = Vec::with_capacity(M / 2);
+            let mut t: Node<K, V> = Vec::with_capacity(M / 2);
             t.push(Entry::create(
                 self.root[0].key.clone(),
                 None,
@@ -131,7 +133,7 @@ impl<'a, K: Ord + Clone + 'a, V: Clone + 'a> BalancedTree<K, V> {
         None
     }
     // TODO: fix lifetime params for insert!
-    fn insert(h: &mut Vec<Entry<K, V>>, key: K, val: V, height: usize) -> Option<Vec<Entry<K, V>>> {
+    fn insert(h: &mut Node<K, V>, key: K, val: V, height: usize) -> Option<Node<K, V>> {
         let mut j = 0;
         let mut t = Entry::new(key.clone(), Some(val.clone()));
         if height == 0_usize {
@@ -148,6 +150,7 @@ impl<'a, K: Ord + Clone + 'a, V: Clone + 'a> BalancedTree<K, V> {
                 if (j + 1_usize).eq(&h.len()) || key.lt(&h[j + 1].key) {
                     if let Some(u) = Self::insert(&mut h[j].next, key, val, height - 1_usize) {
                         t.key = u[0].key.clone();
+                        t.val = None;
                         t.next = u;
                         j += 1;
                         break;
@@ -177,7 +180,7 @@ impl<'a, K: Ord + Clone + 'a, V: Clone + 'a> BalancedTree<K, V> {
             None
         } else {
             // Split node in half
-            let mut t: Vec<Entry<K, V>> = Vec::with_capacity(M / 2);
+            let mut t: Node<K, V> = Vec::with_capacity(M / 2);
             // TODO: work for M=4, find a better solution!
             for _ in 0..(M / 2) {
                 t.push(h.remove(M / 2));
