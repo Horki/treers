@@ -7,7 +7,7 @@ pub trait SedgewickMap<K: Ord, V> {
     fn size(&self) -> usize;
     fn get(&self, key: &K) -> Option<&V>;
     fn put(&mut self, key: K, value: V);
-    fn height(&self) -> usize;
+    fn height(&self) -> Option<usize>;
     fn is_empty(&self) -> bool {
         self.size().eq(&0_usize)
     }
@@ -84,7 +84,7 @@ pub trait TreeTraversal<K: Ord, V>: SedgewickMap<K, V> {
             Traversals::InOrder => self.in_order(&mut vec),
             Traversals::PostOrder => self.post_order(&mut vec),
             Traversals::LevelOrder => {
-                for level in 1..=self.height() {
+                for level in 0..=self.height().unwrap() {
                     self.level_order(&mut vec, level);
                 }
             }
@@ -106,10 +106,10 @@ pub enum Traversals {
 
 #[cfg(test)]
 mod tests {
-    use super::bst::BST;
-    use super::SedgewickMap;
+    use crate::bst::BST;
     use crate::btree::BalancedTree;
     use crate::rbtree::RedBlackTree;
+    use crate::SedgewickMap;
 
     #[test]
     fn its_42() {

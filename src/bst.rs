@@ -1,5 +1,4 @@
-use super::SedgewickMap;
-use crate::TreeTraversal;
+use crate::{SedgewickMap, TreeTraversal};
 use std::cmp::Ordering;
 
 /// 3.2 Binary Search Tree
@@ -9,8 +8,6 @@ use std::cmp::Ordering;
 /// # Examples
 ///
 /// ```
-/// //extern crate treers;
-///
 /// use treers::bst::BST;
 /// use treers::SedgewickMap;
 ///
@@ -29,7 +26,9 @@ use std::cmp::Ordering;
 ///
 /// // Gets a value 1
 /// println!("bst[a] = {}", bst.get(&'a').unwrap());
+/// assert_eq!(bst.height(), Some(2_usize));
 /// ```
+#[derive(Debug)]
 pub enum BST<K: Ord, V> {
     Node {
         k: K,
@@ -42,6 +41,19 @@ pub enum BST<K: Ord, V> {
 }
 
 impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
+    /// Inits a new instance of Binary Search Tree.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::SedgewickMap;
+    ///
+    /// let bst: BST<char, i32> = BST::new();
+    /// assert_eq!(bst.is_empty(), true);
+    /// ```
     fn new() -> Self {
         BST::NIL
     }
@@ -56,7 +68,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// use treers::bst::BST;
     /// use treers::SedgewickMap;
     ///
-    /// let mut bst: BST<char, u32> = BST::new();
+    /// let mut bst: BST<char, i32> = BST::new();
     /// bst.put('a', 1);
     /// bst.put('b', 2);
     /// bst.put('c', 3);
@@ -86,7 +98,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// use treers::bst::BST;
     /// use treers::SedgewickMap;
     ///
-    /// let mut bst: BST<char, u32> = BST::new();
+    /// let mut bst: BST<char, i32> = BST::new();
     /// bst.put('a', 1);
     /// assert_eq!(bst.get(&'a'), Some(&1));
     /// assert_eq!(bst.get(&'b'), None);
@@ -118,10 +130,11 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// use treers::bst::BST;
     /// use treers::SedgewickMap;
     ///
-    /// let mut bst: BST<char, u32> = BST::new();
+    /// let mut bst: BST<char, i32> = BST::new();
     /// assert_eq!(bst.is_empty(), true);
-    /// bst.put('a', 1);
+    /// bst.put('a', 1_i32);
     /// assert_eq!(bst.is_empty(), false);
+    /// assert_eq!(bst.get(&'a'), Some(&1_i32));
     /// ```
     fn put(&mut self, key: K, value: V) {
         match self {
@@ -165,31 +178,29 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// use treers::bst::BST;
     /// use treers::SedgewickMap;
     ///
-    /// let mut bst: BST<char, u32> = BST::new();
+    /// let mut bst: BST<char, i32> = BST::new();
     /// bst.put('a', 1);
     /// bst.put('b', 2);
     /// bst.put('c', 3);
     /// bst.put('d', 4);
-    /// //  a
+    /// //  a         <-- height: 0
     /// // / \
-    /// //    b
+    /// //    b       <-- height: 1
     /// //   / \
-    /// //      c
+    /// //      c     <-- height: 2
     /// //     / \
-    /// //        d
-    /// assert_eq!(bst.height(), bst.size());
-    /// assert_eq!(bst.height(), 4_usize);
+    /// //        d   <-- height: 3
+    /// // Note -The Height of binary tree with single node is taken as zero.
+    /// assert_eq!(bst.get(&'a'), Some(&1_i32));
+    /// assert_eq!(bst.height(), Some(3_usize));
+    /// assert_eq!(bst.size(), 4_usize);
     /// ```
-    fn height(&self) -> usize {
-        match self {
-            BST::Node {
-                k: _,
-                v: _,
-                size: _,
-                ref left,
-                ref right,
-            } => 1_usize + std::cmp::max(left.height(), right.height()),
-            _ => 0_usize,
+    fn height(&self) -> Option<usize> {
+        let h = self.get_height();
+        if h > 0_usize {
+            Some(h - 1)
+        } else {
+            None
         }
     }
 
@@ -204,7 +215,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// use treers::bst::BST;
     /// use treers::SedgewickMap;
     ///
-    /// let mut bst: BST<char, u32> = BST::new();
+    /// let mut bst: BST<char, i32> = BST::new();
     /// assert_eq!(bst.is_empty(), true);
     /// bst.put('a', 2);
     /// assert_eq!(bst.is_empty(), false);
@@ -227,7 +238,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// use treers::bst::BST;
     /// use treers::SedgewickMap;
     ///
-    /// let mut bst: BST<char, u32> = BST::new();
+    /// let mut bst: BST<char, i32> = BST::new();
     /// assert_eq!(bst.min(), None);
     /// bst.put('c', 1);
     /// bst.put('a', 2);
@@ -265,7 +276,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// use treers::bst::BST;
     /// use treers::SedgewickMap;
     ///
-    /// let mut bst: BST<char, u32> = BST::new();
+    /// let mut bst: BST<char, i32> = BST::new();
     /// assert_eq!(bst.max(), None);
     /// bst.put('c', 1);
     /// bst.put('a', 2);
@@ -294,6 +305,30 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
 }
 
 impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for BST<K, V> {
+    /// Returns traverse pre ordered
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::{SedgewickMap, TreeTraversal, Traversals};
+    ///
+    /// let mut bst: BST<char, i32> = BST::new();
+    /// bst.put('c', 3);
+    /// bst.put('d', 4);
+    /// bst.put('b', 2);
+    /// bst.put('a', 1);
+    /// //    c
+    /// //   / \
+    /// //  b   d
+    /// // /
+    /// // a
+    /// assert_eq!(bst.traverse(&Traversals::PreOrder).as_slice(),
+    ///       &[(&'c', &3), (&'b', &2), (&'a', &1), (&'d', &4)]);
+    /// ```
     fn pre_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
         if let BST::Node {
             ref k,
@@ -308,6 +343,31 @@ impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for BST<K, V> {
             right.pre_order(vec);
         }
     }
+
+    /// Returns traverse in ordered
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::{SedgewickMap, TreeTraversal, Traversals};
+    ///
+    /// let mut bst: BST<char, i32> = BST::new();
+    /// bst.put('c', 3);
+    /// bst.put('d', 4);
+    /// bst.put('b', 2);
+    /// bst.put('a', 1);
+    /// //    c
+    /// //   / \
+    /// //  b   d
+    /// // /
+    /// // a
+    /// assert_eq!(bst.traverse(&Traversals::InOrder).as_slice(),
+    ///       &[(&'a', &1), (&'b', &2), (&'c', &3), (&'d', &4)]);
+    /// ```
     fn in_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
         if let BST::Node {
             ref k,
@@ -323,6 +383,30 @@ impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for BST<K, V> {
         }
     }
 
+    /// Returns traverse post ordered
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::{SedgewickMap, TreeTraversal, Traversals};
+    ///
+    /// let mut bst: BST<char, i32> = BST::new();
+    /// bst.put('c', 3);
+    /// bst.put('d', 4);
+    /// bst.put('b', 2);
+    /// bst.put('a', 1);
+    /// //    c
+    /// //   / \
+    /// //  b   d
+    /// // /
+    /// // a
+    /// assert_eq!(bst.traverse(&Traversals::PostOrder).as_slice(),
+    ///       &[(&'a', &1), (&'b', &2), (&'d', &4), (&'c', &3)]);
+    /// ```
     fn post_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
         if let BST::Node {
             ref k,
@@ -338,6 +422,30 @@ impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for BST<K, V> {
         }
     }
 
+    /// Returns traverse level ordered
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::bst::BST;
+    /// use treers::{SedgewickMap, TreeTraversal, Traversals};
+    ///
+    /// let mut bst: BST<char, i32> = BST::new();
+    /// bst.put('c', 3);
+    /// bst.put('d', 4);
+    /// bst.put('b', 2);
+    /// bst.put('a', 1);
+    /// //    c
+    /// //   / \
+    /// //  b   d
+    /// // /
+    /// // a
+    /// assert_eq!(bst.traverse(&Traversals::LevelOrder).as_slice(),
+    ///       &[(&'c', &3), (&'b', &2), (&'d', &4), (&'a', &1)]);
+    /// ```
     fn level_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>, level: usize) {
         if let BST::Node {
             ref k,
@@ -348,12 +456,28 @@ impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for BST<K, V> {
         } = self
         {
             match level {
-                1 => vec.push((k, v)),
+                0 => vec.push((k, v)),
                 _ => {
                     left.level_order(vec, level - 1);
                     right.level_order(vec, level - 1);
                 }
             }
+        }
+    }
+}
+
+// internal methods
+impl<K: Ord, V> BST<K, V> {
+    fn get_height(&self) -> usize {
+        match self {
+            BST::Node {
+                k: _,
+                v: _,
+                size: _,
+                ref left,
+                ref right,
+            } => 1_usize + std::cmp::max(left.get_height(), right.get_height()),
+            _ => 0_usize,
         }
     }
 }
@@ -366,7 +490,6 @@ mod tests {
     #[test]
     fn test_is_empty() {
         let bst: BST<i32, i32> = BST::new();
-        println!("{}", std::mem::size_of_val(&bst));
         assert_eq!(bst.is_empty(), true);
     }
 
@@ -382,7 +505,7 @@ mod tests {
     fn test_size_zero() {
         let bst: BST<i32, i32> = BST::new();
         assert_eq!(bst.size(), 0);
-        assert_eq!(bst.height(), 0);
+        assert_eq!(bst.height(), None);
     }
 
     #[test]
@@ -423,7 +546,7 @@ mod tests {
             bst.put(i, i + 1);
         }
         assert_eq!(bst.size(), 1_000);
-        assert_eq!(bst.height(), 1_000);
+        assert_eq!(bst.height(), Some(999));
     }
 
     #[test]
@@ -455,6 +578,7 @@ mod tests {
         bst.put('d', 4);
         bst.put('b', 2);
         bst.put('a', 1);
+        assert_eq!(bst.size(), res.len());
         for (a, _) in bst.traverse(&Traversals::InOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -469,6 +593,7 @@ mod tests {
         bst.put('d', 4);
         bst.put('b', 2);
         bst.put('a', 1);
+        assert_eq!(bst.size(), res.len());
         for (a, _) in bst.traverse(&Traversals::PreOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -483,6 +608,7 @@ mod tests {
         bst.put('d', 4);
         bst.put('b', 2);
         bst.put('a', 1);
+        assert_eq!(bst.size(), res.len());
         for (a, _) in bst.traverse(&Traversals::PostOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -497,6 +623,7 @@ mod tests {
         bst.put('d', 4);
         bst.put('b', 2);
         bst.put('a', 1);
+        assert_eq!(bst.size(), res.len());
         for (a, _) in bst.traverse(&Traversals::LevelOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
