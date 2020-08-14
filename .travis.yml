@@ -1,0 +1,12 @@
+language: rust
+rust:
+  - 1.45.0
+  - stable
+before_script:
+  - rustup component add clippy
+cache: cargo
+script:
+  - cargo clippy --release
+  - cargo build --release
+  - cargo test --release
+
