@@ -1,7 +1,9 @@
 use crate::SedgewickMap;
 
+// TODO: add M size in constructor?
 const M: usize = 4_usize;
 
+// TODO: make stack memory array
 type Node<K, V> = Vec<Entry<K, V>>;
 
 #[derive(Debug)]
@@ -79,8 +81,8 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for BalancedTree<K, V> {
         self.size += 1;
     }
 
-    fn height(&self) -> usize {
-        self.height
+    fn height(&self) -> Option<usize> {
+        Some(self.height)
     }
 
     fn min(&self) -> Option<&K> {
@@ -117,7 +119,7 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for BalancedTree<K, V> {
 impl<'a, K: Ord + Clone + 'a, V: Clone + 'a> BalancedTree<K, V> {
     // TODO: fix lifetime params for search!
     fn search(node: &'a [Entry<K, V>], key: K, height: usize) -> Option<&'a V> {
-        if height == 0_usize {
+        if height.eq(&0_usize) {
             for n in node {
                 if key.eq(&n.key) {
                     return n.val.as_ref();
@@ -213,7 +215,7 @@ mod tests {
     fn test_size_zero() {
         let btree: BalancedTree<i32, i32> = BalancedTree::new();
         assert_eq!(btree.size(), 0_usize);
-        assert_eq!(btree.height(), 0_usize);
+        assert_eq!(btree.height(), Some(0));
     }
 
     #[test]
@@ -246,7 +248,7 @@ mod tests {
             btree.put(i, i + 1);
         }
         assert_eq!(btree.size(), 1_000_usize);
-        assert_eq!(btree.height(), 8_usize);
+        assert_eq!(btree.height(), Some(8_usize));
         assert_eq!(btree.min(), Some(&1_i32));
         assert_eq!(btree.max(), Some(&1_000_i32));
         assert_eq!(btree.get(&501_i32), Some(&502_i32));
@@ -260,7 +262,7 @@ mod tests {
             btree.put(i, i + 1);
         }
         assert_eq!(btree.size(), 1_000_usize);
-        assert_eq!(btree.height(), 8_usize);
+        assert_eq!(btree.height(), Some(8_usize));
         assert_eq!(btree.min(), Some(&1_i32));
         assert_eq!(btree.max(), Some(&1_000_i32));
         assert_eq!(btree.get(&501_i32), Some(&502_i32));
