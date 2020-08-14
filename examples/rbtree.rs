@@ -1,5 +1,5 @@
 use treers::rbtree::RedBlackTree;
-use treers::SedgewickMap;
+use treers::{SedgewickMap, Traversals, TreeTraversal};
 
 fn left_rotate() {
     let mut rbtree: RedBlackTree<u32, u32> = RedBlackTree::new();
@@ -22,7 +22,24 @@ fn left_rotate() {
     rbtree.put(9, 18);
     dbg!(rbtree.clone());
     println!("size = {}", rbtree.size());
-    println!("height = {}", rbtree.height());
+    println!("height = {}", rbtree.height().unwrap());
+    println!("\nIn order");
+    for (k, _v) in rbtree.traverse(&Traversals::InOrder) {
+        print!("{}, ", k);
+    }
+    println!("\nPre order");
+    for (k, _v) in rbtree.traverse(&Traversals::PreOrder) {
+        print!("{}, ", k);
+    }
+    println!("\nPost order");
+    for (k, _v) in rbtree.traverse(&Traversals::PostOrder) {
+        print!("{}, ", k);
+    }
+    println!("\nLevel order");
+    for (k, _v) in rbtree.traverse(&Traversals::LevelOrder) {
+        print!("{}, ", k);
+    }
+    println!();
     {
         let mut rbtree_left_max = RedBlackTree::new();
         for i in 1..=1000_u64 {
@@ -46,8 +63,25 @@ fn right_rotate() {
     rbtree.put(2, 16);
     rbtree.put(1, 18);
     dbg!(rbtree.clone());
-    println!("size = {}", rbtree.size());
-    println!("height = {}", rbtree.height());
+    println!("\nIn order");
+    for (k, _v) in rbtree.traverse(&Traversals::InOrder) {
+        print!("{}, ", k);
+    }
+    println!("\nPre order");
+    for (k, _v) in rbtree.traverse(&Traversals::PreOrder) {
+        print!("{}, ", k);
+    }
+    println!("\nPost order");
+    for (k, _v) in rbtree.traverse(&Traversals::PostOrder) {
+        print!("{}, ", k);
+    }
+    println!("\nLevel order");
+    for (k, _v) in rbtree.traverse(&Traversals::LevelOrder) {
+        print!("{}, ", k);
+    }
+
+    println!("\nsize = {}", rbtree.size());
+    println!("height = {}", rbtree.height().unwrap());
     {
         let mut rbtree_right_max = RedBlackTree::new();
         for i in (1..=1000_u64).rev() {

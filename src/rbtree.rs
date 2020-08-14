@@ -1,6 +1,35 @@
 use crate::{SedgewickMap, TreeTraversal};
 use std::cmp::Ordering;
 
+/// 3.3 Balanced Search Trees: Red-Black BST
+///
+/// Red-Black BST implementation from Robert Sedgewick book, "Algorithms" 4th edition
+///
+/// # Examples
+///
+/// ```
+/// use treers::SedgewickMap;
+/// use treers::rbtree::RedBlackTree;
+///
+/// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+/// rbtree.put('a', 1);
+/// rbtree.put('b', 2);
+/// rbtree.put('c', 3);
+/// rbtree.put('d', 4);
+/// rbtree.put('e', 5);
+/// rbtree.put('f', 6);
+///
+/// // Generate a balanced Red-Black Binary Search Tree
+/// //          d(B)           <-- height: 0
+/// //        /      \
+/// //     (R)b       f(B)     <-- height: 1
+/// //      / \      /    \
+/// //   (B)a  c(B) e(R)       <-- height: 2
+/// // Note -The Height of binary tree with single node is taken as zero.
+/// assert_eq!(rbtree.get(&'a'), Some(&1_i32));
+/// assert_eq!(rbtree.height(), Some(2_usize));
+/// assert_eq!(rbtree.size(), 6_usize);
+/// ```
 #[derive(Debug)]
 pub enum RedBlackTree<K: Ord + Clone, V: Clone> {
     Node {
@@ -79,19 +108,15 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
         self.set_color(false);
     }
 
-    fn height(&self) -> usize {
-        match self {
-            RedBlackTree::Node {
-                k: _,
-                v: _,
-                color: _,
-                size: _,
-                ref left,
-                ref right,
-            } => 1_usize + std::cmp::max(left.height(), right.height()),
-            _ => 0_usize,
+    fn height(&self) -> Option<usize> {
+        let height_rbtree = self.get_height();
+        if height_rbtree > 0_usize {
+            Some(height_rbtree - 1)
+        } else {
+            None
         }
     }
+
     fn is_empty(&self) -> bool {
         match self {
             RedBlackTree::Node { .. } => false,
@@ -199,7 +224,7 @@ impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for RedBlackTree<K, V> {
         } = self
         {
             match level {
-                1 => vec.push((k, v)),
+                0 => vec.push((k, v)),
                 _ => {
                     left.level_order(vec, level - 1);
                     right.level_order(vec, level - 1);
@@ -209,6 +234,7 @@ impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for RedBlackTree<K, V> {
     }
 }
 
+// internal methods
 impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
     fn insert(&mut self, key: &'a K, value: &'a V) {
         match self {
@@ -230,19 +256,23 @@ impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
                 if right.is_red() && !left.is_red() {
                     let right_clone = right.clone();
                     *right = right_clone.get_right_clone();
-                    *color = true;
-                    right.set_color(true);
+                    let right_size = right_clone.size();
+                    *color = right_clone.is_right_red();
                     left.set_vals(
                         &k,
                         &v,
                         true,
-                        *size,
+                        right_size,
                         *left.clone(),
                         *right_clone.get_left_clone(),
                     );
                     // Don't move, but use clone, instead
-                    *k = key.clone();
-                    *v = value.clone();
+                    if let Some(kk) = right_clone.get_key() {
+                        *k = kk.clone();
+                    }
+                    if let Some(vv) = right_clone.get_val() {
+                        *v = vv.clone();
+                    }
                 }
                 // Balance 4-node
                 // Rotate Right
@@ -251,7 +281,6 @@ impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
                     *left = left_clone.get_left_clone();
                     let left_size = left.size();
                     *color = true;
-                    left.set_color(true);
                     right.set_vals(
                         &k,
                         &v,
@@ -275,7 +304,7 @@ impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
                     left.set_color(false);
                     right.set_color(false);
                 }
-                *size = left.size() + right.size() + 1;
+                *size = left.size() + right.size() + 1_usize;
             }
             RedBlackTree::NIL => {
                 // Insert a leaf node
@@ -288,6 +317,20 @@ impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
                     right: Box::new(RedBlackTree::NIL),
                 }
             }
+        }
+    }
+
+    fn get_height(&self) -> usize {
+        match self {
+            RedBlackTree::Node {
+                k: _,
+                v: _,
+                color: _,
+                size: _,
+                ref left,
+                ref right,
+            } => 1_usize + std::cmp::max(left.get_height(), right.get_height()),
+            _ => 0_usize,
         }
     }
 
@@ -332,7 +375,6 @@ impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
     fn get_key(&self) -> Option<&K> {
         if let RedBlackTree::Node {
             ref k,
-            // ref v,
             v: _,
             color: _,
             size: _,
@@ -404,6 +446,20 @@ impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
         }
     }
 
+    fn is_right_red(&self) -> bool {
+        match self {
+            RedBlackTree::Node {
+                k: _,
+                v: _,
+                color: _,
+                size: _,
+                left: _,
+                ref right,
+            } => right.is_red(),
+            _ => false,
+        }
+    }
+
     fn get_left_clone(&self) -> Box<RedBlackTree<K, V>> {
         match self {
             RedBlackTree::Node {
@@ -455,8 +511,8 @@ mod tests {
     #[test]
     fn test_size_zero() {
         let rbtree: RedBlackTree<i32, i32> = RedBlackTree::new();
-        assert_eq!(rbtree.size(), 0);
-        assert_eq!(rbtree.height(), 0);
+        assert_eq!(rbtree.size(), 0_usize);
+        assert_eq!(rbtree.height(), None);
     }
 
     #[test]
@@ -531,6 +587,7 @@ mod tests {
         rbtree.put('d', 4);
         rbtree.put('b', 2);
         rbtree.put('a', 1);
+        assert_eq!(rbtree.size(), res.len());
         for (a, _) in rbtree.traverse(&Traversals::InOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -545,6 +602,7 @@ mod tests {
         rbtree.put('d', 4);
         rbtree.put('b', 2);
         rbtree.put('a', 1);
+        assert_eq!(rbtree.size(), res.len());
         for (a, _) in rbtree.traverse(&Traversals::PreOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -559,6 +617,7 @@ mod tests {
         rbtree.put('d', 4);
         rbtree.put('b', 2);
         rbtree.put('a', 1);
+        assert_eq!(rbtree.size(), res.len());
         for (a, _) in rbtree.traverse(&Traversals::PostOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -573,6 +632,7 @@ mod tests {
         rbtree.put('d', 4);
         rbtree.put('b', 2);
         rbtree.put('a', 1);
+        assert_eq!(rbtree.size(), res.len());
         for (a, _) in rbtree.traverse(&Traversals::LevelOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -587,19 +647,20 @@ mod tests {
             i += 1;
         }
         assert_eq!(rbtree.size(), 9_usize);
-        assert_eq!(rbtree.height(), 5_usize);
+        assert_eq!(rbtree.height(), Some(3_usize));
     }
 
     #[test]
     fn test_left_rotate_pre_order() {
         let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
-        let res = vec!['h', 'f', 'd', 'b', 'a', 'c', 'e', 'g', 'i'];
+        let res = vec!['d', 'b', 'a', 'c', 'h', 'f', 'e', 'g', 'i'];
         let mut it = res.iter();
         let mut i = 1;
         for c in 'a'..='i' {
             rbtree.put(c, i);
             i += 1;
         }
+        assert_eq!(rbtree.size(), res.len());
         for (a, _) in rbtree.traverse(&Traversals::PreOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -615,6 +676,7 @@ mod tests {
             rbtree.put(c, i);
             i += 1;
         }
+        assert_eq!(rbtree.size(), res.len());
         for (a, _) in rbtree.traverse(&Traversals::InOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -623,13 +685,14 @@ mod tests {
     #[test]
     fn test_left_rotate_post_order() {
         let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
-        let res = vec!['a', 'c', 'b', 'e', 'd', 'g', 'f', 'i', 'h'];
+        let res = vec!['a', 'c', 'b', 'e', 'g', 'f', 'i', 'h', 'd'];
         let mut it = res.iter();
         let mut i = 1;
         for c in 'a'..='i' {
             rbtree.put(c, i);
             i += 1;
         }
+        assert_eq!(rbtree.size(), res.len());
         for (a, _) in rbtree.traverse(&Traversals::PostOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -638,13 +701,14 @@ mod tests {
     #[test]
     fn test_left_rotate_level_order() {
         let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
-        let res = vec!['h', 'f', 'i', 'd', 'g', 'b', 'e', 'a', 'c'];
+        let res = vec!['d', 'b', 'h', 'a', 'c', 'f', 'i', 'e', 'g'];
         let mut it = res.iter();
         let mut i = 1;
         for c in 'a'..='i' {
             rbtree.put(c, i);
             i += 1;
         }
+        assert_eq!(rbtree.size(), res.len());
         for (a, _) in rbtree.traverse(&Traversals::LevelOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -659,7 +723,7 @@ mod tests {
             i += 1;
         }
         assert_eq!(rbtree.size(), 9_usize);
-        assert_eq!(rbtree.height(), 4_usize);
+        assert_eq!(rbtree.height(), Some(3_usize));
     }
 
     #[test]
@@ -672,6 +736,7 @@ mod tests {
             rbtree.put(c, i);
             i += 1;
         }
+        assert_eq!(rbtree.size(), res.len());
         for (a, _) in rbtree.traverse(&Traversals::PreOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -687,6 +752,7 @@ mod tests {
             rbtree.put(c, i);
             i += 1;
         }
+        assert_eq!(rbtree.size(), res.len());
         for (a, _) in rbtree.traverse(&Traversals::InOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -702,6 +768,7 @@ mod tests {
             rbtree.put(c, i);
             i += 1;
         }
+        assert_eq!(rbtree.size(), res.len());
         for (a, _) in rbtree.traverse(&Traversals::PostOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -717,6 +784,7 @@ mod tests {
             rbtree.put(c, i);
             i += 1;
         }
+        assert_eq!(rbtree.size(), res.len());
         for (a, _) in rbtree.traverse(&Traversals::LevelOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
@@ -732,7 +800,7 @@ mod tests {
         assert_eq!(cnt, 1_000_usize);
         assert_eq!(rbtree.size(), 1_000_usize);
         assert_eq!(rbtree.size(), cnt);
-        assert_eq!(rbtree.height(), 501_usize);
+        assert_eq!(rbtree.height(), Some(9_usize));
         assert_eq!(rbtree.min(), Some(&1_u32));
         assert_eq!(rbtree.max(), Some(&1000_u32));
         assert_eq!(rbtree.get(&501_u32), Some(&501_u32));
@@ -748,7 +816,7 @@ mod tests {
         assert_eq!(cnt, 1_000_usize);
         assert_eq!(rbtree.size(), 1_000_usize);
         assert_eq!(rbtree.size(), cnt);
-        assert_eq!(rbtree.height(), 15_usize);
+        assert_eq!(rbtree.height(), Some(14_usize));
         assert_eq!(rbtree.min(), Some(&1_u32));
         assert_eq!(rbtree.max(), Some(&1000_u32));
         assert_eq!(rbtree.get(&501_u32), Some(&501_u32));
