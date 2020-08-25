@@ -2,6 +2,7 @@
 name = "treers"
 version = "0.1.0"
 authors = ["Horki <ivanzvonimirhorvat@gmail.com>"]
+description = "Simple implementation of Sedgewick's tree maps"
 categories = ["data-structures", "algorithms"]
 edition = "2018"
 repository = "https://github.com/Horki/treers"
