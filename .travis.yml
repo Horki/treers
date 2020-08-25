@@ -9,4 +9,7 @@ script:
   - cargo clippy --release
   - cargo build --release
   - cargo test --release
-
+notifications:
+  email:
+    on_success: never
+    on_failure: always

@@ -1,5 +1,6 @@
 use crate::{SedgewickMap, TreeTraversal};
 use std::cmp::Ordering;
+use std::ops::Index;
 
 /// 3.3 Balanced Search Trees: Red-Black BST
 ///
@@ -27,6 +28,7 @@ use std::cmp::Ordering;
 /// //   (B)a  c(B) e(R)       <-- height: 2
 /// // Note -The Height of binary tree with single node is taken as zero.
 /// assert_eq!(rbtree.get(&'a'), Some(&1_i32));
+/// assert_eq!(rbtree[&'a'], 1_i32);
 /// assert_eq!(rbtree.height(), Some(2_usize));
 /// assert_eq!(rbtree.size(), 6_usize);
 /// ```
@@ -67,9 +69,40 @@ impl<K: Clone + Ord, V: Clone> Clone for RedBlackTree<K, V> {
 }
 
 impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
+    /// Inits a new instance of Red-Black Tree.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::SedgewickMap;
+    ///
+    /// let rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// assert_eq!(rbtree.is_empty(), true);
+    /// ```
     fn new() -> Self {
         RedBlackTree::NIL
     }
+
+    /// Returns a size of elements in `Red-Black Tree`.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// rbtree.put('a', 1);
+    /// rbtree.put('b', 2);
+    /// rbtree.put('c', 3);
+    /// rbtree.put('d', 4);
+    /// assert_eq!(rbtree.size(), 4_usize);
+    /// ```
     fn size(&self) -> usize {
         match &self {
             RedBlackTree::Node {
@@ -83,6 +116,23 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
             _ => 0_usize,
         }
     }
+
+    /// Returns a reference to optional reference to value.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// rbtree.put('a', 1);
+    /// assert_eq!(rbtree.get(&'a'), Some(&1));
+    /// assert_eq!(rbtree[&'a'], 1);
+    /// assert_eq!(rbtree.get(&'b'), None);
+    /// ```
     fn get(&self, key: &K) -> Option<&V> {
         match self {
             RedBlackTree::Node {
@@ -101,6 +151,24 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
         }
     }
 
+    /// Insert a key-value pair into the `Red-Black Tree`.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// assert_eq!(rbtree.is_empty(), true);
+    ///
+    /// rbtree.put('a', 1_i32);
+    /// assert_eq!(rbtree.is_empty(), false);
+    /// assert_eq!(rbtree.get(&'a'), Some(&1_i32));
+    /// assert_eq!(rbtree[&'a'], 1_i32);
+    /// ```
     fn put(&mut self, key: K, value: V) {
         // move values!
         self.insert(&key, &value);
@@ -108,15 +176,58 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
         self.set_color(false);
     }
 
+    /// Get height of `Red-Black Tree`.
+    ///
+    /// Red-Black Tree is a balanced tree.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// rbtree.put('a', 1);
+    /// rbtree.put('b', 2);
+    /// rbtree.put('c', 3);
+    /// rbtree.put('d', 4);
+    /// //   b         <-- height: 0
+    /// //  / \
+    /// // a   d       <-- height: 1
+    /// //    / \
+    /// //   c         <-- height: 2
+    /// // Note -The Height of red-black tree with single node is taken as zero.
+    /// assert_eq!(rbtree.get(&'a'), Some(&1_i32));
+    /// assert_eq!(rbtree.height(), Some(2_usize));
+    /// assert_eq!(rbtree.size(), 4_usize);
+    /// ```
     fn height(&self) -> Option<usize> {
         let height_rbtree = self.get_height();
         if height_rbtree > 0_usize {
-            Some(height_rbtree - 1)
+            Some(height_rbtree - 1_usize)
         } else {
             None
         }
     }
 
+    /// Checks if `Red-Black Tree` node is empty.
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// assert_eq!(rbtree.is_empty(), true);
+    /// rbtree.put('a', 2);
+    /// assert_eq!(rbtree.is_empty(), false);
+    /// ```
     fn is_empty(&self) -> bool {
         match self {
             RedBlackTree::Node { .. } => false,
@@ -124,6 +235,25 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
         }
     }
 
+    /// Returns a optional reference to minimal key
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// assert_eq!(rbtree.min(), None);
+    /// rbtree.put('c', 1);
+    /// rbtree.put('a', 2);
+    /// rbtree.put('b', 3);
+    /// rbtree.put('d', 4);
+    /// assert_eq!(rbtree.min(), Some(&'a'));
+    /// ```
     fn min(&self) -> Option<&K> {
         match self {
             RedBlackTree::Node {
@@ -144,6 +274,25 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
         }
     }
 
+    /// Returns a optional reference to maximum key
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::SedgewickMap;
+    ///
+    /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// assert_eq!(rbtree.max(), None);
+    /// rbtree.put('c', 1);
+    /// rbtree.put('a', 2);
+    /// rbtree.put('b', 3);
+    /// rbtree.put('d', 4);
+    /// assert_eq!(rbtree.max(), Some(&'d'));
+    /// ```
     fn max(&self) -> Option<&K> {
         match self {
             RedBlackTree::Node {
@@ -166,6 +315,34 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
 }
 
 impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for RedBlackTree<K, V> {
+    /// Returns traverse post ordered
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::{SedgewickMap, TreeTraversal, Traversals};
+    ///
+    /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// rbtree.put('a', 1);
+    /// rbtree.put('b', 2);
+    /// rbtree.put('c', 3);
+    /// rbtree.put('d', 4);
+    /// rbtree.put('e', 5);
+    /// rbtree.put('f', 6);
+    /// // Generate a balanced Red-Black Binary Search Tree
+    /// //          d(B)           <-- height: 0
+    /// //        /      \
+    /// //     (R)b       f(B)     <-- height: 1
+    /// //      / \      /    \
+    /// //   (B)a  c(B) e(R)       <-- height: 2
+    /// assert_eq!(rbtree.traverse(&Traversals::PreOrder).as_slice(),
+    ///       &[(&'d', &4), (&'b', &2), (&'a', &1),
+    ///         (&'c', &3), (&'f', &6), (&'e', &5)]);
+    /// ```
     fn pre_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
         if let RedBlackTree::Node {
             ref k,
@@ -181,6 +358,35 @@ impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for RedBlackTree<K, V> {
             right.pre_order(vec);
         }
     }
+
+    /// Returns traverse in ordered
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::{SedgewickMap, TreeTraversal, Traversals};
+    ///
+    /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// rbtree.put('a', 1);
+    /// rbtree.put('b', 2);
+    /// rbtree.put('c', 3);
+    /// rbtree.put('d', 4);
+    /// rbtree.put('e', 5);
+    /// rbtree.put('f', 6);
+    /// // Generate a balanced Red-Black Binary Search Tree
+    /// //          d(B)           <-- height: 0
+    /// //        /      \
+    /// //     (R)b       f(B)     <-- height: 1
+    /// //      / \      /    \
+    /// //   (B)a  c(B) e(R)       <-- height: 2
+    /// assert_eq!(rbtree.traverse(&Traversals::InOrder).as_slice(),
+    ///       &[(&'a', &1), (&'b', &2), (&'c', &3),
+    ///         (&'d', &4), (&'e', &5), (&'f', &6)]);
+    /// ```
     fn in_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
         if let RedBlackTree::Node {
             ref k,
@@ -197,6 +403,34 @@ impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for RedBlackTree<K, V> {
         }
     }
 
+    /// Returns traverse post ordered
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::{SedgewickMap, TreeTraversal, Traversals};
+    ///
+    /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// rbtree.put('a', 1);
+    /// rbtree.put('b', 2);
+    /// rbtree.put('c', 3);
+    /// rbtree.put('d', 4);
+    /// rbtree.put('e', 5);
+    /// rbtree.put('f', 6);
+    /// // Generate a balanced Red-Black Binary Search Tree
+    /// //          d(B)           <-- height: 0
+    /// //        /      \
+    /// //     (R)b       f(B)     <-- height: 1
+    /// //      / \      /    \
+    /// //   (B)a  c(B) e(R)       <-- height: 2
+    /// assert_eq!(rbtree.traverse(&Traversals::PostOrder).as_slice(),
+    ///       &[(&'a', &1), (&'c', &3), (&'b', &2),
+    ///         (&'e', &5), (&'f', &6), (&'d', &4)]);
+    /// ```
     fn post_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>) {
         if let RedBlackTree::Node {
             ref k,
@@ -213,6 +447,35 @@ impl<K: Ord + Clone, V: Clone> TreeTraversal<K, V> for RedBlackTree<K, V> {
         }
     }
 
+    /// Returns traverse level ordered
+    ///
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::{SedgewickMap, TreeTraversal, Traversals};
+    ///
+    /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// rbtree.put('a', 1);
+    /// rbtree.put('b', 2);
+    /// rbtree.put('c', 3);
+    /// rbtree.put('d', 4);
+    /// rbtree.put('e', 5);
+    /// rbtree.put('f', 6);
+    /// // Generate a balanced Red-Black Binary Search Tree
+    /// //          d(B)           <-- height: 0
+    /// //        /      \
+    /// //     (R)b       f(B)     <-- height: 1
+    /// //      / \      /    \
+    /// //   (B)a  c(B) e(R)       <-- height: 2
+    /// assert_eq!(rbtree.traverse(&Traversals::LevelOrder).as_slice(),
+    ///       &[            (&'d', &4),               // <-- height: 0
+    ///                (&'b', &2), (&'f', &6),        // <-- height: 1
+    ///         (&'a', &1), (&'c', &3), (&'e', &5)]); // <-- height: 2
+    /// ```
     fn level_order<'a>(&'a self, vec: &mut Vec<(&'a K, &'a V)>, level: usize) {
         if let RedBlackTree::Node {
             ref k,
@@ -489,6 +752,28 @@ impl<'a, K: 'a + Ord + Clone, V: 'a + Clone> RedBlackTree<K, V> {
     }
 }
 
+impl<K: Ord + Clone, V: Clone> Default for RedBlackTree<K, V> {
+    /// Creates an empty `RedBlackTree<K, V>`.
+    fn default() -> RedBlackTree<K, V> {
+        RedBlackTree::new()
+    }
+}
+
+impl<K: Ord + Clone, V: Clone> Index<&K> for RedBlackTree<K, V> {
+    type Output = V;
+
+    /// Returns a reference to the value corresponding to the supplied key.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the key is not present in the `RedBlackTree`.
+    #[inline]
+    fn index(&self, index: &K) -> &V {
+        self.get(index)
+            .expect("Missing entry for key in Red-Black Tree")
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::rbtree::RedBlackTree;
@@ -528,6 +813,15 @@ mod tests {
         let mut rbtree: RedBlackTree<u32, i32> = RedBlackTree::new();
         rbtree.put(1_u32, -1_i32);
         assert_eq!(rbtree.get(&1_u32), Some(&-1_i32));
+        assert_eq!(rbtree[&1_u32], -1_i32);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_index_panic() {
+        let mut rbtree: RedBlackTree<i32, i32> = RedBlackTree::new();
+        rbtree.put(1_i32, -1_i32);
+        let _panics = rbtree[&10_i32];
     }
 
     #[test]

@@ -2,8 +2,10 @@
 name = "treers"
 version = "0.1.0"
 authors = ["Horki <ivanzvonimirhorvat@gmail.com>"]
+categories = ["data-structures", "algorithms"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+repository = "https://github.com/Horki/treers"
+readme = "./README.md"
+license = "MIT"
 
 [dependencies]

@@ -22,11 +22,25 @@ pub trait SedgewickMap<K: Ord, V> {
     /// ```
     /// use treers::bst::BST;
     /// use treers::SedgewickMap;
+    /// use treers::rbtree::RedBlackTree;
+    /// use treers::btree::BalancedTree;
     ///
     /// let mut bst: BST<char, u32> = BST::new();
+    /// let mut rbtree: RedBlackTree<char, u32> = RedBlackTree::new();
+    /// let mut btree: BalancedTree<char, u32> = BalancedTree::new();
+    ///
     /// bst.put('a', 2);
+    /// rbtree.put('a', 2);
+    /// btree.put('a', 2);
+    ///
     /// assert_eq!(bst.contains(&'a'), true);
     /// assert_eq!(bst.contains(&'b'), false);
+    ///
+    /// assert_eq!(rbtree.contains(&'a'), true);
+    /// assert_eq!(rbtree.contains(&'b'), false);
+    ///
+    /// assert_eq!(btree.contains(&'a'), true);
+    /// assert_eq!(btree.contains(&'b'), false);
     /// ```
     fn contains(&self, key: &K) -> bool {
         self.get(&key).is_some()

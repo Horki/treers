@@ -1,5 +1,5 @@
 # treers
-Rust Trees
+Rust Trees as maps
 
 ## Authors
 

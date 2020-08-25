@@ -1,5 +1,6 @@
 use crate::{SedgewickMap, TreeTraversal};
 use std::cmp::Ordering;
+use std::ops::Index;
 
 /// 3.2 Binary Search Tree
 ///
@@ -102,6 +103,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// bst.put('a', 1);
     /// assert_eq!(bst.get(&'a'), Some(&1));
     /// assert_eq!(bst.get(&'b'), None);
+    /// assert_eq!(bst[&'a'], 1);
     /// ```
     fn get(&self, key: &K) -> Option<&V> {
         match self {
@@ -132,9 +134,11 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     ///
     /// let mut bst: BST<char, i32> = BST::new();
     /// assert_eq!(bst.is_empty(), true);
+    ///
     /// bst.put('a', 1_i32);
     /// assert_eq!(bst.is_empty(), false);
     /// assert_eq!(bst.get(&'a'), Some(&1_i32));
+    /// assert_eq!(bst[&'a'], 1_i32);
     /// ```
     fn put(&mut self, key: K, value: V) {
         match self {
@@ -204,7 +208,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
         }
     }
 
-    /// Checks if `BST` is empty.
+    /// Checks if `BST` node is empty.
     ///
     ///
     /// # Examples
@@ -482,6 +486,27 @@ impl<K: Ord, V> BST<K, V> {
     }
 }
 
+impl<K: Ord + Clone, V: Clone> Default for BST<K, V> {
+    /// Creates an empty `BST<K, V>`.
+    fn default() -> BST<K, V> {
+        BST::new()
+    }
+}
+
+impl<K: Ord + Clone, V: Clone> Index<&K> for BST<K, V> {
+    type Output = V;
+
+    /// Returns a reference to the value corresponding to the supplied key.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the key is not present in the `BST`.
+    #[inline]
+    fn index(&self, index: &K) -> &V {
+        self.get(index).expect("Missing entry for key in BST")
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{SedgewickMap, BST};
@@ -521,6 +546,15 @@ mod tests {
         let mut bst: BST<u32, i32> = BST::new();
         bst.put(1_u32, -1_i32);
         assert_eq!(bst.get(&1_u32), Some(&-1_i32));
+        assert_eq!(bst[&1_u32], -1_i32);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_index_panic() {
+        let mut bst: BST<i32, i32> = BST::new();
+        bst.put(1_i32, -1_i32);
+        let _panics = bst[&10_i32];
     }
 
     #[test]
