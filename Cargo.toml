@@ -8,5 +8,6 @@ edition = "2018"
 repository = "https://github.com/Horki/treers"
 readme = "./README.md"
 license = "MIT"
+documentation = "https://docs.rs/treers/"
 
 [dependencies]
