@@ -97,6 +97,7 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
     /// use treers::SedgewickMap;
     ///
     /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
+    /// assert_eq!(rbtree.size(), 0_usize);
     /// rbtree.put('a', 1);
     /// rbtree.put('b', 2);
     /// rbtree.put('c', 3);
@@ -813,6 +814,7 @@ mod tests {
         let mut rbtree: RedBlackTree<u32, i32> = RedBlackTree::new();
         rbtree.put(1_u32, -1_i32);
         assert_eq!(rbtree.get(&1_u32), Some(&-1_i32));
+        assert_eq!(rbtree.get(&10_u32), None);
         assert_eq!(rbtree[&1_u32], -1_i32);
     }
 
@@ -835,6 +837,7 @@ mod tests {
     #[test]
     fn test_left_rotate_min() {
         let mut rbtree: RedBlackTree<u32, u32> = RedBlackTree::new();
+        assert_eq!(rbtree.min(), None);
         for i in vec![1_u32, 2, 3, 4, 5, 6] {
             rbtree.put(i, i);
         }
@@ -855,6 +858,7 @@ mod tests {
     #[test]
     fn test_shuffle_max() {
         let mut rbtree: RedBlackTree<u32, u32> = RedBlackTree::new();
+        assert_eq!(rbtree.max(), None);
         for i in vec![6_u32, 4, 5, 2, 1, 3] {
             rbtree.put(i, i);
         }

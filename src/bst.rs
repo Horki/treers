@@ -70,6 +70,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// use treers::SedgewickMap;
     ///
     /// let mut bst: BST<char, i32> = BST::new();
+    /// assert_eq!(bst.size(), 0_usize);
     /// bst.put('a', 1);
     /// bst.put('b', 2);
     /// bst.put('c', 3);
@@ -546,6 +547,7 @@ mod tests {
         let mut bst: BST<u32, i32> = BST::new();
         bst.put(1_u32, -1_i32);
         assert_eq!(bst.get(&1_u32), Some(&-1_i32));
+        assert_eq!(bst.get(&10_u32), None);
         assert_eq!(bst[&1_u32], -1_i32);
     }
 
@@ -586,6 +588,7 @@ mod tests {
     #[test]
     fn test_min() {
         let mut bst: BST<u32, u32> = BST::new();
+        assert_eq!(bst.min(), None);
         for i in vec![6_u32, 4, 5, 2, 1, 3] {
             bst.put(i, i);
         }
@@ -596,6 +599,7 @@ mod tests {
     #[test]
     fn test_max() {
         let mut bst: BST<u32, u32> = BST::new();
+        assert_eq!(bst.max(), None);
         for i in vec![6_u32, 4, 5, 2, 1, 3] {
             bst.put(i, i);
         }

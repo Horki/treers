@@ -102,6 +102,7 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for BalancedTree<K, V> {
     /// use treers::SedgewickMap;
     ///
     /// let mut btree: BalancedTree<char, i32> = BalancedTree::new();
+    /// assert_eq!(btree.size(), 0_usize);
     /// btree.put('a', 1);
     /// btree.put('b', 2);
     /// btree.put('c', 3);
@@ -419,6 +420,7 @@ mod tests {
         let mut btree: BalancedTree<u32, i32> = BalancedTree::new();
         btree.put(1_u32, -1_i32);
         assert_eq!(btree.get(&1_u32), Some(&-1_i32));
+        assert_eq!(btree.get(&10_u32), None);
         assert_eq!(btree[&1_u32], -1_i32);
     }
 
@@ -441,6 +443,8 @@ mod tests {
     #[test]
     fn test_left_rotate_one_thousand() {
         let mut btree: BalancedTree<i32, i32> = BalancedTree::new();
+        assert_eq!(btree.min(), None);
+        assert_eq!(btree.max(), None);
         for i in 1..=1_000_i32 {
             btree.put(i, i + 1);
         }
