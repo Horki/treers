@@ -92,11 +92,11 @@ https://docs.rs/treers
 
 ## TODO
 
-- [] More work on documentation and README
-- [] BTree, use stack memory for entries
-- [] Replace tree traversals with iterators
-- [] Implement remaining methods for trees
-- [] Make Red-Black Tree blazingly fast
+- [ ] More work on documentation and README
+- [ ] BTree, use stack memory for entries
+- [ ] Replace tree traversals with iterators
+- [ ] Implement remaining methods for trees
+- [ ] Make Red-Black Tree blazingly fast
 
 ## Resources
 
