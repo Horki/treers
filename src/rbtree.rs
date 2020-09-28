@@ -819,7 +819,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected = "Missing entry for key in Red-Black Tree")]
     fn test_index_panic() {
         let mut rbtree: RedBlackTree<i32, i32> = RedBlackTree::new();
         rbtree.put(1_i32, -1_i32);

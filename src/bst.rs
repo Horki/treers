@@ -552,7 +552,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected = "Missing entry for key in BST")]
     fn test_index_panic() {
         let mut bst: BST<i32, i32> = BST::new();
         bst.put(1_i32, -1_i32);

@@ -425,7 +425,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected = "Missing entry for key in Balanced Tree")]
     fn test_index_panic() {
         let mut btree: BalancedTree<i32, i32> = BalancedTree::new();
         btree.put(1_i32, -1_i32);
