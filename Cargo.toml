@@ -1,6 +1,6 @@
 [package]
 name = "treers"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Horki <ivanzvonimirhorvat@gmail.com>"]
 description = "Simple implementation of Sedgewick's tree maps"
 categories = ["data-structures", "algorithms"]
@@ -11,3 +11,10 @@ license = "MIT"
 documentation = "https://docs.rs/treers/"
 
 [dependencies]
+
+[dev-dependencies]
+bencher = "0.1.5"
+
+[[bench]]
+name = "maps"
+harness = false
