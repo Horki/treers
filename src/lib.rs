@@ -1,3 +1,18 @@
+#![forbid(dead_code, unsafe_code, unstable_features)]
+#![deny(
+    clippy::missing_const_for_fn,
+    clippy::redundant_pub_crate,
+    future_incompatible,
+    private_in_public,
+    single_use_lifetimes,
+    trivial_casts,
+    trivial_numeric_casts,
+    unused_extern_crates,
+    unused_import_braces,
+    unused_lifetimes
+)]
+#![allow(clippy::use_self)]
+
 pub mod bst;
 pub mod btree;
 pub mod rbtree;
