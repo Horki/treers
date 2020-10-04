@@ -53,7 +53,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// use treers::SedgewickMap;
     ///
     /// let bst: BST<char, i32> = BST::new();
-    /// assert_eq!(bst.is_empty(), true);
+    /// assert!(bst.is_empty());
     /// ```
     fn new() -> Self {
         BST::NIL
@@ -134,7 +134,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// use treers::SedgewickMap;
     ///
     /// let mut bst: BST<char, i32> = BST::new();
-    /// assert_eq!(bst.is_empty(), true);
+    /// assert!(bst.is_empty());
     ///
     /// bst.put('a', 1_i32);
     /// assert_eq!(bst.is_empty(), false);
@@ -221,7 +221,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// use treers::SedgewickMap;
     ///
     /// let mut bst: BST<char, i32> = BST::new();
-    /// assert_eq!(bst.is_empty(), true);
+    /// assert!(bst.is_empty());
     /// bst.put('a', 2);
     /// assert_eq!(bst.is_empty(), false);
     /// ```
@@ -516,7 +516,7 @@ mod tests {
     #[test]
     fn test_is_empty() {
         let bst: BST<i32, i32> = BST::new();
-        assert_eq!(bst.is_empty(), true);
+        assert!(bst.is_empty());
     }
 
     #[test]
@@ -563,7 +563,7 @@ mod tests {
     fn test_contains() {
         let mut bst: BST<i32, i32> = BST::new();
         bst.put(1_i32, -1_i32);
-        assert_eq!(bst.contains(&1_i32), true);
+        assert!(bst.contains(&1_i32));
         assert_eq!(bst.contains(&-1_i32), false);
     }
 

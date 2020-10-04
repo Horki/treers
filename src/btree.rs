@@ -81,7 +81,7 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for BalancedTree<K, V> {
     /// use treers::SedgewickMap;
     ///
     /// let btree: BalancedTree<char, i32> = BalancedTree::new();
-    /// assert_eq!(btree.is_empty(), true);
+    /// assert!(btree.is_empty());
     /// ```
     fn new() -> Self {
         Self {
@@ -149,7 +149,7 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for BalancedTree<K, V> {
     /// use treers::SedgewickMap;
     ///
     /// let mut btree: BalancedTree<char, i32> = BalancedTree::new();
-    /// assert_eq!(btree.is_empty(), true);
+    /// assert!(btree.is_empty());
     ///
     /// btree.put('a', 1_i32);
     /// assert_eq!(btree.is_empty(), false);
@@ -389,7 +389,7 @@ mod tests {
     #[test]
     fn test_is_empty() {
         let btree: BalancedTree<i32, i32> = BalancedTree::new();
-        assert_eq!(btree.is_empty(), true);
+        assert!(btree.is_empty());
     }
 
     #[test]
@@ -436,7 +436,7 @@ mod tests {
     fn test_contains() {
         let mut btree: BalancedTree<i32, i32> = BalancedTree::new();
         btree.put(1_i32, -1_i32);
-        assert_eq!(btree.contains(&1_i32), true);
+        assert!(btree.contains(&1_i32));
         assert_eq!(btree.contains(&-1_i32), false);
     }
 
@@ -453,7 +453,7 @@ mod tests {
         assert_eq!(btree.min(), Some(&1_i32));
         assert_eq!(btree.max(), Some(&1_000_i32));
         assert_eq!(btree.get(&501_i32), Some(&502_i32));
-        assert_eq!(btree.contains(&501_i32), true);
+        assert!(btree.contains(&501_i32));
     }
 
     #[test]
@@ -467,6 +467,6 @@ mod tests {
         assert_eq!(btree.min(), Some(&1_i32));
         assert_eq!(btree.max(), Some(&1_000_i32));
         assert_eq!(btree.get(&501_i32), Some(&502_i32));
-        assert_eq!(btree.contains(&501_i32), true);
+        assert!(btree.contains(&501_i32));
     }
 }

@@ -80,7 +80,7 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
     /// use treers::SedgewickMap;
     ///
     /// let rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
-    /// assert_eq!(rbtree.is_empty(), true);
+    /// assert!(rbtree.is_empty());
     /// ```
     fn new() -> Self {
         RedBlackTree::NIL
@@ -163,7 +163,7 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
     /// use treers::SedgewickMap;
     ///
     /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
-    /// assert_eq!(rbtree.is_empty(), true);
+    /// assert!(rbtree.is_empty());
     ///
     /// rbtree.put('a', 1_i32);
     /// assert_eq!(rbtree.is_empty(), false);
@@ -225,7 +225,7 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
     /// use treers::SedgewickMap;
     ///
     /// let mut rbtree: RedBlackTree<char, i32> = RedBlackTree::new();
-    /// assert_eq!(rbtree.is_empty(), true);
+    /// assert!(rbtree.is_empty());
     /// rbtree.put('a', 2);
     /// assert_eq!(rbtree.is_empty(), false);
     /// ```
@@ -783,7 +783,7 @@ mod tests {
     #[test]
     fn test_is_empty() {
         let r: RedBlackTree<i32, i32> = RedBlackTree::new();
-        assert_eq!(r.is_empty(), true);
+        assert!(r.is_empty());
     }
 
     #[test]
@@ -830,7 +830,7 @@ mod tests {
     fn test_contains() {
         let mut rbtree: RedBlackTree<i32, i32> = RedBlackTree::new();
         rbtree.put(1_i32, -1_i32);
-        assert_eq!(rbtree.contains(&1_i32), true);
+        assert!(rbtree.contains(&1_i32));
         assert_eq!(rbtree.contains(&-1_i32), false);
     }
 

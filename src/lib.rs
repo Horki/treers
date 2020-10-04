@@ -48,13 +48,13 @@ pub trait SedgewickMap<K: Ord, V> {
     /// rbtree.put('a', 2);
     /// btree.put('a', 2);
     ///
-    /// assert_eq!(bst.contains(&'a'), true);
+    /// assert!(bst.contains(&'a'));
     /// assert_eq!(bst.contains(&'b'), false);
     ///
-    /// assert_eq!(rbtree.contains(&'a'), true);
+    /// assert!(rbtree.contains(&'a'));
     /// assert_eq!(rbtree.contains(&'b'), false);
     ///
-    /// assert_eq!(btree.contains(&'a'), true);
+    /// assert!(btree.contains(&'a'));
     /// assert_eq!(btree.contains(&'b'), false);
     /// ```
     fn contains(&self, key: &K) -> bool {
@@ -155,8 +155,8 @@ mod tests {
         let rbt: RedBlackTree<i32, i32> = RedBlackTree::new();
         let btree: BalancedTree<i32, i32> = BalancedTree::new();
 
-        assert_eq!(is_empty(&bst), true);
-        assert_eq!(is_empty(&rbt), true);
-        assert_eq!(is_empty(&btree), true);
+        assert!(is_empty(&bst));
+        assert!(is_empty(&rbt));
+        assert!(is_empty(&btree));
     }
 }
