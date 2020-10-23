@@ -230,10 +230,7 @@ impl<K: Ord + Clone, V: Clone> SedgewickMap<K, V> for RedBlackTree<K, V> {
     /// assert_eq!(rbtree.is_empty(), false);
     /// ```
     fn is_empty(&self) -> bool {
-        match self {
-            RedBlackTree::Node { .. } => false,
-            _ => true,
-        }
+        !matches!(self, RedBlackTree::Node { .. })
     }
 
     /// Returns a optional reference to minimal key

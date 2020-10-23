@@ -226,10 +226,7 @@ impl<K: Ord, V> SedgewickMap<K, V> for BST<K, V> {
     /// assert_eq!(bst.is_empty(), false);
     /// ```
     fn is_empty(&self) -> bool {
-        match self {
-            BST::Node { .. } => false,
-            _ => true,
-        }
+        !matches!(*self, BST::Node { .. })
     }
 
     /// Returns a optional reference to minimal key
