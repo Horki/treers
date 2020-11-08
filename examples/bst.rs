@@ -27,5 +27,10 @@ fn main() {
     for (a, _) in bst.traverse(&Traversals::LevelOrder) {
         print!("{}, ", *a);
     }
+    bst.invert();
+    println!("\nlevel order traversal; after INVERT");
+    for (a, _) in bst.traverse(&Traversals::LevelOrder) {
+        print!("{}, ", *a);
+    }
     println!();
 }

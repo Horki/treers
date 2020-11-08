@@ -482,6 +482,21 @@ impl<K: Ord, V> BST<K, V> {
             _ => 0_usize,
         }
     }
+    /// Easter egg: invert a BST :)
+    pub fn invert(&mut self) {
+        if let BST::Node {
+            k: _,
+            v: _,
+            size: _,
+            ref mut left,
+            ref mut right,
+        } = self
+        {
+            left.invert();
+            right.invert();
+            std::mem::swap(left, right);
+        }
+    }
 }
 
 impl<K: Ord + Clone, V: Clone> Default for BST<K, V> {
@@ -651,6 +666,18 @@ mod tests {
 
     #[test]
     fn test_level_order() {
+        //     c
+        //    / \
+        //   b   d
+        //  /
+        // a
+        //
+        // Inverted BST
+        //     c
+        //    / \
+        //   d   b
+        //    \
+        //     a
         let mut bst: BST<char, i32> = BST::new();
         let res = vec!['c', 'b', 'd', 'a'];
         let mut it = res.iter();
@@ -662,5 +689,13 @@ mod tests {
         for (a, _) in bst.traverse(&Traversals::LevelOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
+        bst.invert();
+        let res = vec!['c', 'd', 'b', 'a'];
+        it = res.iter();
+        assert_eq!(bst.size(), res.len());
+        for (a, _) in bst.traverse(&Traversals::LevelOrder) {
+            assert_eq!(*a, *it.next().unwrap());
+        }
+
     }
 }
