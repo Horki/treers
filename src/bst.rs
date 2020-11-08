@@ -676,8 +676,8 @@ mod tests {
         //     c
         //    / \
         //   d   b
-        //    \
-        //     a
+        //        \
+        //         a
         let mut bst: BST<char, i32> = BST::new();
         let res = vec!['c', 'b', 'd', 'a'];
         let mut it = res.iter();
@@ -696,6 +696,5 @@ mod tests {
         for (a, _) in bst.traverse(&Traversals::LevelOrder) {
             assert_eq!(*a, *it.next().unwrap());
         }
-
     }
 }
