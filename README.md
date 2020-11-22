@@ -66,6 +66,7 @@ Please contribute, feel free to [write an issue](https://github.com/Horki/treers
 - Root node has to be black
 - Red nodes lean left
 - Every path from the root to a null link has the same number of black links
+- Popular usage in [CFS: Completely Fair Scheduler](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler)
 
 | Algorithm | Average | Worst Case |
 |-----------|---------|:---------:|
